@@ -1,10 +1,10 @@
 errorWithCode = (statusCode, message, failedApi) => {
-  let error = new Error(message);
+    let error = new Error(message);
 
-  error.statusCode = statusCode;
-  error.failedApi = failedApi;
+    error.statusCode = statusCode;
+    error.failedApi = failedApi;
 
-  return error;
+    return error;
 };
 
 module.exports = errorWithCode;
