@@ -1,0 +1,31 @@
+{
+  "name": "no.20_miniproject",
+  "version": "1.0.0",
+  "description": "항해99 14기 20조 미니프로젝트",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ksnx3684/No.20_MiniProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ksnx3684/No.20_MiniProject/issues"
+  },
+  "homepage": "https://github.com/ksnx3684/No.20_MiniProject#readme",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.2.4",
+    "sequelize": "^6.31.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22",
+    "sequelize-cli": "^6.6.0"
+  }
+}
