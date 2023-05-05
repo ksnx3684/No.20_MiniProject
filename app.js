@@ -4,7 +4,7 @@ const port = 3000;
 const cookieParser = require("cookie-parser");
 const router = require("./routes");
 
-const errorHandler = require("./ middlewares/errorHandler");
+const errorHandler = require("./middlewares/errorHandler");
 
 app.use(express.json());
 app.use(cookieParser());

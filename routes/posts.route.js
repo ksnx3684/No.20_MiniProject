@@ -16,16 +16,16 @@ router.get("/:_nickname", postsController.getUserPosts);
 router.post("/:_nickname", authMiddleware, postsController.createPost);
 
 // 게시글 상세 조회
-router.get("/:_nickname/:_postId", postsController.getOnePost);
+// router.get("/:_nickname/:_postId", postsController.getOnePost);
 
 // 게시글 수정
-router.put("/:_nickname/:_postId", authMiddleware, postsController.updatePost);
+// router.put("/:_nickname/:_postId", authMiddleware, postsController.updatePost);
 
 // 게시글 삭제
-router.delete(
-  "/:_nickname/:_postId",
-  authMiddleware,
-  postsController.deletePost
-);
+// router.delete(
+//   "/:_nickname/:_postId",
+//   authMiddleware,
+//   postsController.deletePost
+// );
 
 module.exports = router;

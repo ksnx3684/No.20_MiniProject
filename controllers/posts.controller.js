@@ -1,3 +1,5 @@
+const errorWithCode = require("../utils/error");
+
 const PostsService = require("../services/posts.service");
 
 class PostsController {
@@ -9,8 +11,7 @@ class PostsController {
 
       res.status(200).json({ posts });
     } catch (e) {
-      // TODO: fix (temoporary)
-      res.status(400).json({ errorMessage: "게시글 조회에 실패했습니다." });
+      next(e);
     }
   };
 
@@ -22,36 +23,34 @@ class PostsController {
 
       res.status(200).json({ posts });
     } catch (e) {
-      // TODO: fix (temoporary)
-      res.status(400).json({ errorMessage: "게시글 조회에 실패했습니다." });
+      next(e);
     }
   };
 
   createPost = async (req, res, next) => {
     try {
       if (Object.keys(req.body).length !== 2) {
-        // TODO: fix (temoporary)
-        throw new Error();
+        throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
       }
 
       const { userId, nickname } = res.locals.user;
       const { title, content } = req.body;
 
       if (!title || title === "") {
-        // TODO: fix (temoporary)
-        throw new Error();
+        throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
       }
       if (!content || content === "") {
-        // TODO: fix (temoporary)
-        throw new Error();
+        throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
       }
 
       await this.postsService.createPost(userId, nickname, title, content);
 
       res.status(201).json({ message: "게시글을 작성했습니다." });
     } catch (e) {
-      // TODO: fix (temoporary)
-      res.status(400).json({ errorMessage: "게시글 작성에 실패했습니다." });
+      e.failedApi = "게시글 작성";
+      next(e);
     }
   };
 }
+
+module.exports = PostsController;
