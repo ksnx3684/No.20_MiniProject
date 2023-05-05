@@ -7,25 +7,21 @@ const authMiddleware = require("../middlewares/auth-middleware");
 const postsController = new PostsController();
 
 // 메인 페이지 조회
-router.get("/main", postsController.getMainPage);
+router.get("/posts/main", postsController.getMainPage);
 
 // 마이(특정 유저) 페이지 조회
-router.get("/:_nickname", postsController.getUserPosts);
+router.get("/posts/:_nickname", postsController.getUserPosts);
 
 // 게시글 작성
-router.post("/:_nickname", authMiddleware, postsController.createPost);
+router.post("/posts/:_nickname", authMiddleware, postsController.createPost);
 
 // 게시글 상세 조회
-// router.get("/:_nickname/:_postId", postsController.getOnePost);
+router.get("/posts/:_nickname/:_postId", postsController.getOnePost);
 
 // 게시글 수정
-// router.put("/:_nickname/:_postId", authMiddleware, postsController.updatePost);
+router.put("/posts/:_nickname/:_postId", authMiddleware, postsController.updatePost);
 
 // 게시글 삭제
-// router.delete(
-//   "/:_nickname/:_postId",
-//   authMiddleware,
-//   postsController.deletePost
-// );
+router.delete("/posts/:_nickname/:_postId", authMiddleware, postsController.deletePost);
 
 module.exports = router;
