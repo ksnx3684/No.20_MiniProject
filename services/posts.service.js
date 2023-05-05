@@ -81,4 +81,4 @@ class PostsService {
   };
 }
 
-module.exports = PostService;
+module.exports = PostsService;
