@@ -3,23 +3,6 @@ const errorWithCode = require("../utils/error");
 class CommentsController {
     commentsService = new CommentsService();
 
-    allComments = async (req, res, next) => {
-        try {
-            const { _nickname, _postId } = req.params;
-
-            const allComments = await this.commentsService.allComments(
-                _nickname,
-                _postId
-            );
-            return res
-                .status(200)
-                .json({ comments: allComments, result: true });
-        } catch (err) {
-            err.failedApi = "댓글조회";
-            next(err);
-        }
-    };
-
     createComment = async (req, res, next) => {
         try {
             if (Object.keys(req.body).length !== 1) {
