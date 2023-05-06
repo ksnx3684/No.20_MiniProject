@@ -1,5 +1,6 @@
 const CommentsRepository = require("../repositories/comments.repository");
 const { Comments, Posts } = require("../models");
+const PostsRepository = require("../repositories/posts.repository");
 class CommentsService {
     postsRepository = new PostsRepository(Posts);
     commentsRepository = new CommentsRepository(Comments);
@@ -9,6 +10,18 @@ class CommentsService {
             _nickname,
             _postId
         );
+
+        allComments.sort((a, b) => b.createdAt - a.createdAt);
+
+        return allComments.map((comment) => {
+            return {
+                commentId: comment.commentId,
+                nickname: comment.nickname,
+                comment: comment.comment,
+                createdAt: comment.createdAt,
+                updatedAt: comment.updatedAt,
+            };
+        });
     };
     //가져온 닉네임 어케 처리할까1
     createComment = async (comment, _nickname, _postId, nickname, userId) => {
