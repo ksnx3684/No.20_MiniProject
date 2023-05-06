@@ -1,4 +1,5 @@
 const UsersService = require('../services/users.service.js');
+const errorWithCode = require('../utils/error.js');
 
 class UsersController {
   usersService = new UsersService();
@@ -13,35 +14,35 @@ class UsersController {
       // 1-1. 닉네임 중복 검사
       const getUser = await this.usersService.getUserWithNickname(nickname);
       if (getUser) {
-        return res.status(412).json({ errorMessage: "중복된 닉네임입니다." });
+        throw errorWithCode(412, "중복된 닉네임입니다.");
       }
       // 1-2. 닉네임 조건 검사 (최소 6글자 이상, 알파벳 대소문자, 숫자만 가능)
       if ((!/^[a-zA-Z0-9]+$/.test(nickname)) || (nickname.length < 6)) {
-        return res.status(412).json({ errorMessage: "닉네임의 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "닉네임의 형식이 일치하지 않습니다.");
       };
       // 1-3. 패스워드에 닉네임 포함여부 검사
       if (password.includes(nickname)) {
-        return res.status(412).json({ errorMessage: "패스워드에 닉네임이 포함되어 있습니다." });
+        throw errorWithCode(412, "패스워드에 닉네임이 포함되어 있습니다.");
       };
       // 1-4. 패스워드 조건 검사 (최소 8글자 이상 가능)
       if (password.length <= 7) {
-        return res.status(412).json({ errorMessage: "패스워드 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "패스워드 형식이 일치하지 않습니다.");
       };
       // 1-5. userImage 유효성 검사
       if (typeof userImage === 'undefined') {
-        return res.status(412).json({ errorMessage: "프로필 이미지 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "프로필 이미지 형식이 일치하지 않습니다.");
       };
       // 1-6. email 유효성 검사
       if (typeof email === 'undefined') {
-        return res.status(412).json({ errorMessage: "이메일 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "이메일 형식이 일치하지 않습니다.");
       };
       // 1-7. github 유효성 검사
       if (typeof github === 'undefined') {
-        return res.status(412).json({ errorMessage: "깃허브 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "깃허브 형식이 일치하지 않습니다.");
       };
       // 1-8. description 유효성 검사
       if (typeof description === 'undefined') {
-        return res.status(412).json({ errorMessage: "소개글 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "소개글 형식이 일치하지 않습니다.");
       };
 
       // 2. Users 회원등록
@@ -60,7 +61,7 @@ class UsersController {
       };
     } catch (err) {
       console.error(err);
-      return res.status(400).json({ errorMessage: "잘못된 데이터 형식입니다." });
+      return res.status(err.statusCode).json({ errorMessage: err.message });
     };
   };
 
@@ -142,6 +143,18 @@ class UsersController {
     } catch (err) {
       console.error(err);
       return res.status(400).json({ errorMessage: "회원정보 수정에 실패하였습니다." });
+    }
+  };
+
+  // 회원 탈퇴
+  withdrawal = async (req, res) => {
+    try {
+      const { userId } = res.locals.user;
+      await this.usersService.withdrawal(userId);
+      return res.status(200).json({ message: "회원 탈퇴에 성공하였습니다." });
+    } catch (err) {
+      console.error(err);
+      return res.status(err.statusCode).json({ errorMessage: err.message });
     }
   };
 

@@ -61,7 +61,10 @@ class UsersService {
     return await this.usersRepository.editProfile(userId, userImage, email, github, description);
   };
 
-  
+  // 회원 탈퇴
+  withdrawal = async (userId) => {
+    return await this.usersRepository.withdrawal(userId);
+  }
 
 };
 
