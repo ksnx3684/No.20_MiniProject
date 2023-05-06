@@ -51,34 +51,58 @@ class PostsService {
   };
 
   getOnePost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
-    return post;
-  };
+    const post = await this.postsRepository.getOnePost(_nickname, _postId);
+    const prevPost = await this.postsRepository.getPrevPost(_nickname, _postId);
+    const nextPost = await this.postsRepository.getNextPost(_nickname, _postId);
 
-  getPrePost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
-    return post;
-  };
-
-  getNextPost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
-    return post;
+    if (!prevPost)
+      return {
+        nickname: _nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: '',
+        prevPostTitle: '',
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title
+      }
+    
+    if (!nextPost)
+      return {
+        nickname: _nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: '',
+        nextPostTitle: ''
+      }
+    else {
+      return {
+        nickname: _nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title
+      }
+    }
   };
 
   checkPost = async (_postId) => {
-    const post = await this.postRepository.checkPost(_postId);
+    const post = await this.postsRepository.checkPost(_postId);
     return post;
   };
 
   updatePost = async (_postId, title, content) => {
-    const post = await this.postRepository.updatePost(_postId, title, content);
+    const post = await this.postsRepository.updatePost(_postId, title, content);
     return post;
   };
 
   deletePost = async (nickname, _postId) => {
-    const post = await this.postRepository.deletePost(nickname, _postId);
+    const post = await this.postsRepository.deletePost(nickname, _postId);
     return post;
   };
 }
 
-module.exports = PostService;
+module.exports = PostsService;

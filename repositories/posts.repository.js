@@ -1,21 +1,48 @@
 const { Op } = require('sequelize');
 const { Posts } = require('../models');
 
-class PostRepository {
+class PostsRepository {
 
     getOnePost = async (_nickname, _postId) => {
+      const post = await Posts.findOne({
+        where: { postId: _postId },
+        attributes: [
+          'postId',
+          'UserId',
+          'title',
+          'content',
+          'likes',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ],
+      });
+        return post;
+    };
+
+    getPrevPost = async (_nickname, _postId) => {
         const post = await Posts.findOne({
-            where: { postId: _postId },
-            attributes: [
-                'postId',
-                'UserId',
-                'title',
-                'content',
-                'likes',
-                'status',
-                'createdAt',
-                'updatedAt',
-            ],
+            where: {
+                nickname: _nickname,
+                postId: {
+                    [Op.lt]: _postId
+                },
+                status: true
+            },
+            order: [['postId', 'DESC']],
+        });
+        return post;
+    };
+
+    getNextPost = async (_nickname, _postId) => {
+        const post = await Posts.findOne({
+            where: {
+                nickname: _nickname,
+                postId: {
+                    [Op.gt]: _postId
+                },
+                status: true
+            }
         });
         return post;
     };
@@ -46,4 +73,4 @@ class PostRepository {
 
 }
 
-module.exports = PostRepository;
+module.exports = PostsRepository;
