@@ -1,3 +1,5 @@
+const { Op } = require("sequelize");
+
 class CommentsRepository {
     constructor(commentsModel) {
         this.commentsModel = commentsModel;
@@ -11,7 +13,9 @@ class CommentsRepository {
     };
 
     oneComment = async (_commentId) => {
-        const oneComment = await this.commentsModel.findByPk(_commentId);
+        const oneComment = await this.commentsModel.findOne({
+            where: { commentId: _commentId },
+        });
         return oneComment;
     };
 
