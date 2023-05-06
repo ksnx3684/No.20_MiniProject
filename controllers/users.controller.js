@@ -55,13 +55,12 @@ class UsersController {
       const addProfileResult = await this.usersService.addProfile(userId, userImage, email, github, description);
 
       if (signupResult && addProfileResult) {
-        return res.status(200).json({ message: "회원가입에 성공하였습니다." });
-      } else {
-        return res.status(400).json({ message: "회원가입에 실패하였습니다." });
-      };
+        return res.status(200).send(true);
+      }
     } catch (err) {
       console.error(err);
-      return res.status(err.statusCode).json({ errorMessage: err.message });
+      err.failedApi = "회원가입"
+      next(err);
     };
   };
 
@@ -74,7 +73,7 @@ class UsersController {
       // 2-1. 회원찾기 (닉네임)
       const getUser = await this.usersService.getUserWithNickname(nickname);
       if (!getUser || getUser.password !== password) {
-        return res.status(401).json({ errorMessage: "닉네임 또는 패스워드를 확인해주세요." });
+        throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요." );
       };
       // 3. 로그인하기
       const result = await this.usersService.login(nickname, password);
@@ -88,7 +87,8 @@ class UsersController {
       }
     } catch (err) {
       console.error(err);
-      return res.status(400).json({ errorMessage: "잘못된 데이터 형식입니다." });
+      err.failedApi = "로그인"
+      next(err);
     };
   };
 
