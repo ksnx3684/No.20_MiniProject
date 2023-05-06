@@ -16,7 +16,7 @@ router.get("/:_nickname", postsController.getUserPosts);
 router.post("/", authMiddleware, postsController.createPost);
 
 // 게시글 상세 조회
-router.get("/:_postId", postsController.getOnePost);
+router.get("/:_nickname/:_postId", postsController.getOnePost);
 
 // 게시글 수정
 router.put("/:_postId", authMiddleware, postsController.updatePost);

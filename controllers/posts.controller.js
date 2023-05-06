@@ -1,9 +1,11 @@
 const errorWithCode = require("../utils/error");
 
 const PostsService = require("../services/posts.service");
+const CommentsService = require("../services/comments.service");
 
 class PostsController {
   postsService = new PostsService();
+  commentsService = new CommentsService();
 
   getMainPage = async (req, res, next) => {
     try {
@@ -71,8 +73,9 @@ class PostsController {
         throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
       const post = await this.postsService.getOnePost(_postId);
+      const comments = await this.commentsService.allComments(_postId);
         
-      return res.status(200).json({ post, result: true });
+      return res.status(200).json({ post, comments, result: true });
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 상세 조회";
