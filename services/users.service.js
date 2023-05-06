@@ -40,6 +40,11 @@ class UsersService {
   editProfile = async (userId, userImage, email, github, description) => {
     return await this.usersRepository.editProfile(userId, userImage, email, github, description);
   };
+
+  // 회원탈퇴
+  withdrawal = async (userId) => {
+    return await this.usersRepository.withdrawal(userId);
+  };
 };
 
 module.exports = UsersService;
