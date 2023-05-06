@@ -1,3 +1,5 @@
+const errorWithCode = require("../utils/error");
+
 const PostsRepository = require("./../repositories/posts.repository");
 const { Posts } = require("./../models/");
 
@@ -7,8 +9,11 @@ class PostsService {
   findAllPosts = async () => {
     const posts = await this.postsRepository.findAllPosts();
     if (!posts.length) {
-      // TODO: fix (temporary)
-      throw new Error();
+      throw errorWithCode(404, "게시글이 존재하지 않습니다");
+    }
+
+    if (posts.length > 20) {
+      posts.length = 20;
     }
 
     posts.sort((a, b) => b.createdAt - a.createdAt);
@@ -16,11 +21,10 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.userId,
+        userId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
       };
     });
   };
@@ -28,8 +32,11 @@ class PostsService {
   findUserPosts = async (nickname) => {
     const posts = await this.postsRepository.findUserPosts(nickname);
     if (!posts.length) {
-      // TODO: fix (temporary)
-      throw new Error();
+      throw errorWithCode(404, "게시글이 존재하지 않습니다");
+    }
+
+    if (posts.length > 20) {
+      posts.length = 20;
     }
 
     posts.sort((a, b) => b.createdAt - a.createdAt);
@@ -37,11 +44,10 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.userId,
+        userId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
       };
     });
   };
