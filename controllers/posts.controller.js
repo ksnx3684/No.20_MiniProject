@@ -68,10 +68,6 @@ class PostsController {
     try {
       const { _postId } = req.params;
 
-      const checkPost = await this.postsService.checkPost(_postId);
-      if (!checkPost)
-        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
-
       const post = await this.postsService.getOnePost(_postId);
       const comments = await this.commentsService.allComments(_postId);
         

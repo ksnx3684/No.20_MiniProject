@@ -19,7 +19,7 @@ class PostsRepository {
 
   getOnePost = async (_postId) => {
     const post = await this.model.findOne({
-      where: { postId: _postId },
+      where: { postId: _postId, status: true },
       attributes: [
         'postId',
         'UserId',
@@ -61,7 +61,7 @@ class PostsRepository {
 
   checkPost = async (_postId) => {
     const post = await this.model.findOne({
-      where: { postId: _postId },
+      where: { postId: _postId, status: true },
     });
     return post;
   };

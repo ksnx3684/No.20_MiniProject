@@ -68,9 +68,11 @@ class PostsService {
 
   getOnePost = async (_postId) => {
     const post = await this.postsRepository.getOnePost(_postId);
+    if (!post)
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
-
     if (!prevPost)
       return {
         nickname: post.nickname,
@@ -81,7 +83,6 @@ class PostsService {
         nextPostId: nextPost.postId,
         nextPostTitle: nextPost.title
       }
-    
     if (!nextPost)
       return {
         nickname: post.nickname,
