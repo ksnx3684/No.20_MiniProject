@@ -1,5 +1,4 @@
 const { Op } = require("sequelize");
-const { Posts } = require("../models");
 
 class PostsRepository {
   constructor(model) {
@@ -19,7 +18,7 @@ class PostsRepository {
   };
 
   getOnePost = async (_postId) => {
-    const post = await Posts.findOne({
+    const post = await this.model.findOne({
       where: { postId: _postId },
       attributes: [
         'postId',
@@ -61,14 +60,14 @@ class PostsRepository {
   };
 
   checkPost = async (_postId) => {
-    const post = await Posts.findOne({
+    const post = await this.model.findOne({
       where: { postId: _postId },
     });
     return post;
   };
 
   updatePost = async (_postId, title, content) => {
-    const post = await Posts.update(
+    const post = await this.model.update(
       { title, content },
       { where: { postId: _postId } }
     );
@@ -76,7 +75,7 @@ class PostsRepository {
   };
 
   deletePost = async (_postId, nickname) => {
-    const post = await Posts.update(
+    const post = await this.model.update(
       { status: false },
       { where: {
         [Op.and]: [{ postId: _postId }, { nickname }],
