@@ -67,32 +67,32 @@ class PostsService {
   };
 
   getOnePost = async (_postId) => {
-    const post = await this.postRepository.getOnePost(_postId);
+    const post = await this.postsRepository.getOnePost(_postId);
     return post;
   };
 
   getPrePost = async (_postId) => {
-    const post = await this.postRepository.getOnePost(_postId);
+    const post = await this.postsRepository.getOnePost(_postId);
     return post;
   };
 
   getNextPost = async (_postId) => {
-    const post = await this.postRepository.getOnePost(_postId);
+    const post = await this.postsRepository.getOnePost(_postId);
     return post;
   };
 
   checkPost = async (_postId) => {
-    const post = await this.postRepository.checkPost(_postId);
+    const post = await this.postsRepository.checkPost(_postId);
     return post;
   };
 
   updatePost = async (_postId, title, content) => {
-    const post = await this.postRepository.updatePost(_postId, title, content);
+    const post = await this.postsRepository.updatePost(_postId, title, content);
     return post;
   };
 
   deletePost = async (nickname, _postId) => {
-    const post = await this.postRepository.deletePost(nickname, _postId);
+    const post = await this.postsRepository.deletePost(nickname, _postId);
     return post;
   };
 }

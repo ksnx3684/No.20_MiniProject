@@ -20,6 +20,10 @@ class PostsController {
   getUserPosts = async (req, res, next) => {
     try {
       const { _nickname } = req.params;
+      if (parseInt(_nickname) === Number(_nickname)) {
+        console.log("POSTID");
+        next();
+      }
 
       // 특정 닉네임의 게시글 조회
       const posts = await this.postsService.findUserPosts(_nickname);
