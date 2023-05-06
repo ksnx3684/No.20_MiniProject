@@ -7,43 +7,42 @@ class CommentsRepository {
         const allComments = await this.commentsModel.findAll({
             where: { postId: _postId, nickname: _nickname },
         });
+        return allComments;
     };
 
     oneComment = async (_commentId) => {
         const oneComment = await this.commentsModel.findByPk(_commentId);
+        return oneComment;
     };
 
-    //가져온 닉네임 어케 처리할까1
-    createComment = async (comment, _nickname, _postId, nickname, userId) => {
+    createComment = async (comment, _postId, nickname, userId) => {
         const createComment = await this.commentsModel.create({
             comment,
             nickname: nickname,
-            postId: _postId,
-            userId: userId,
+            PostId: _postId,
+            UserId: userId,
         });
+        return createComment;
     };
 
-    updateComment = async (
-        comment,
-        //    _nickname,
-        _postId,
-        nickname,
-        userId,
-        _commentId
-    ) => {
+    updateComment = async (comment, _commentId, nickname) => {
         const updateComment = await this.commentsModel.update(
             { comment },
             {
-                where: { _commentId },
+                where: {
+                    [Op.and]: [{ commentId: _commentId }, { nickname }],
+                },
             }
         );
+        return updateComment;
     };
-    deleteComment = async (_nickname, _postId) => {
-        const deleteComment = await this.commentsModel.destroy({
+    deleteComment = async (nickname, _commentId) => {
+        const deletedComment = await this.commentsModel.destroy({
             where: {
-                commentId: _commentId,
+                [Op.and]: [{ commentId: _commentId }, { nickname }],
             },
         });
+        return deletedComment;
     };
 }
 module.exports = CommentsRepository;

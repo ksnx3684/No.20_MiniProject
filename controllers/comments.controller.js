@@ -23,21 +23,17 @@ class CommentsController {
     createComment = async (req, res, next) => {
         try {
             if (Object.keys(req.body).length !== 1) {
-                throw new errorWithCode(
-                    412,
-                    "데이터 형식이 올바르지 않습니다."
-                );
+                throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
             }
 
             const { comment } = req.body;
             const { _postId } = req.params; // saro       @love/25
             const { nickname, userId } = res.locals.user;
 
-            if (typeof comment !== "string") {
-                throw new errorWithCode(412, "댓글 형식이 올바르지 않습니다");
-            }
+            if (!comment || comment === "" || typeof comment !== "string")
+                throw errorWithCode(412, "댓글 형식이 올바르지 않습니다.");
 
-            const createComment = await this.commentsService.createComment(
+            await this.commentsService.createComment(
                 comment,
                 _postId,
                 nickname,
@@ -54,24 +50,20 @@ class CommentsController {
     updateComment = async (req, res, next) => {
         try {
             if (Object.keys(req.body).length !== 1) {
-                throw new errorWithCode(
-                    412,
-                    "데이터 형식이 올바르지 않습니다."
-                );
+                throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
             }
             const { comment } = req.body;
             const { _postId, _commentId } = req.params;
-            const { nickname, userId } = res.locals.user;
+            const { nickname } = res.locals.user;
 
-            if (typeof comment !== "string") {
-                throw new errorWithCode(412, "댓글 형식이 올바르지 않습니다");
+            if (!comment || comment === "" || typeof comment !== "string") {
+                throw errorWithCode(412, "댓글 형식이 올바르지 않습니다");
             }
 
-            const updateComment = await this.commentsService.updateComment(
+            await this.commentsService.updateComment(
                 comment,
                 _postId,
                 nickname,
-                userId,
                 _commentId
             );
             return res.status(200).send(true);
@@ -84,13 +76,12 @@ class CommentsController {
     deleteComment = async (req, res, next) => {
         try {
             const { _postId, _commentId } = req.params;
-            const { nickname, userId } = res.locals.user;
+            const { nickname } = res.locals.user;
 
-            const deleteComment = await this.commentsService.deleteComment(
-                _postId,
+            await this.commentsService.deleteComment(
                 _commentId,
                 nickname,
-                userId
+                _postId
             );
             return res.status(200).send(true);
         } catch (err) {
