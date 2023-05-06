@@ -18,7 +18,7 @@ class PostsRepository {
     await this.model.create({ UserId: userId, nickname, title, content });
   };
 
-  getOnePost = async (_nickname, _postId) => {
+  getOnePost = async (_postId) => {
     const post = await Posts.findOne({
       where: { postId: _postId },
       attributes: [

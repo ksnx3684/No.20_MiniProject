@@ -1,10 +1,12 @@
 const errorWithCode = require("../utils/error");
 
 const PostsRepository = require("./../repositories/posts.repository");
-const { Posts } = require("./../models/");
+const UsersRepository = require("./../repositories/users.repository");
+const { Posts, Users } = require("./../models/");
 
 class PostsService {
   postsRepository = new PostsRepository(Posts);
+  usersRepository = new UsersRepository(Users);
 
   findAllPosts = async () => {
     const posts = await this.postsRepository.findAllPosts();
@@ -12,11 +14,13 @@ class PostsService {
       throw errorWithCode(404, "게시글이 존재하지 않습니다");
     }
 
+    // 최근 생성 순으로 정렬
+    posts.sort((a, b) => b.createdAt - a.createdAt);
+
+    // 게시글 갯수를 20개로 제한
     if (posts.length > 20) {
       posts.length = 20;
     }
-
-    posts.sort((a, b) => b.createdAt - a.createdAt);
 
     return posts.map((post) => {
       return {
@@ -29,16 +33,22 @@ class PostsService {
     });
   };
 
-  findUserPosts = async (nickname) => {
-    const posts = await this.postsRepository.findUserPosts(nickname);
+  findUserPosts = async (_nickname) => {
+    const user = await this.usersRepository.getUserWithNickname(_nickname);
+    if (!user) {
+      throw errorWithCode(404, "존재하지 않는 사용자입니다.");
+    }
+
+    const posts = await this.postsRepository.findUserPosts(_nickname);
     if (!posts.length) {
       throw errorWithCode(404, "게시글이 존재하지 않습니다");
     }
-
+    // 게시글 갯수를 20개로 제한
     if (posts.length > 20) {
       posts.length = 20;
     }
 
+    // 최근 생성 순으로 정렬
     posts.sort((a, b) => b.createdAt - a.createdAt);
 
     return posts.map((post) => {
@@ -56,18 +66,18 @@ class PostsService {
     await this.postsRepository.createPost(userId, nickname, title, content);
   };
 
-  getOnePost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
+  getOnePost = async (_postId) => {
+    const post = await this.postRepository.getOnePost(_postId);
     return post;
   };
 
-  getPrePost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
+  getPrePost = async (_postId) => {
+    const post = await this.postRepository.getOnePost(_postId);
     return post;
   };
 
-  getNextPost = async (_nickname, _postId) => {
-    const post = await this.postRepository.getOnePost(_nickname, _postId);
+  getNextPost = async (_postId) => {
+    const post = await this.postRepository.getOnePost(_postId);
     return post;
   };
 
@@ -86,6 +96,5 @@ class PostsService {
     return post;
   };
 }
-
 
 module.exports = PostsService;
