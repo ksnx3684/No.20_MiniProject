@@ -1,11 +1,11 @@
 const UsersService = require('../services/users.service.js');
-const errorWithCode = require('../utils/error.js');
+const errorWithCode = require("../utils/error.js");
 
 class UsersController {
   usersService = new UsersService();
 
   // 회원가입
-  signup = async (req, res) => {
+  signup = async (req, res, next) => {
     try {
       // 1. 데이터 입력받기
       const { nickname, password, userImage, email, github, description } = req.body;
@@ -58,14 +58,13 @@ class UsersController {
         return res.status(200).send(true);
       }
     } catch (err) {
-      console.error(err);
       err.failedApi = "회원가입"
       next(err);
     };
   };
 
   // 로그인
-  login = async (req, res) => {
+  login = async (req, res, next) => {
     try {
       // 1. 데이터 입력받기
       const { nickname, password } = req.body;
@@ -73,91 +72,86 @@ class UsersController {
       // 2-1. 회원찾기 (닉네임)
       const getUser = await this.usersService.getUserWithNickname(nickname);
       if (!getUser || getUser.password !== password) {
-        throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요." );
+        throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
       };
       // 3. 로그인하기
       const result = await this.usersService.login(nickname, password);
-      const { token, errorMessage } = result;
-      if (result.token) {
-        // 3-1. 쿠키 생성
-        res.cookie("authorization", `Bearer ${token}`);
-        return res.status(200).json({ token });
-      } else {
-        return res.status(400).json({ errorMessage });
-      }
+      const { token } = result;
+      res.cookie("authorization", `Bearer ${token}`);
+      return res.status(200).json({ token });
     } catch (err) {
-      console.error(err);
       err.failedApi = "로그인"
       next(err);
     };
   };
 
   // 로그아웃
-  logout = async (req, res) => {
+  logout = async (req, res, next) => {
     try {
       res.locals.user;
       res.clearCookie("authorization");   // 이 방식도 가능하고,
       // res.cookie('authorization', '', { maxAge: -1 }); // 이 방식도 가능
       return res.status(200).json({ message: "로그아웃 되었습니다." });
     } catch (err) {
-      console.error(err);
-      return res.status(400).json({ errorMessage: "로그아웃 실패하였습니다." });
+      err.failedApi = "로그아웃"
+      next(err);
     }
   };
 
   // 회원정보 조회
-  getProfile = async (req, res) => {
+  getProfile = async (req, res, next) => {
     try {
       const { userId } = res.locals.user;
       const getProfileData = await this.usersService.getProfile(userId);
       return res.status(200).json({ userInfo: getProfileData });
     } catch (err) {
       console.error(err);
-      return res.status(400).json({ errorMessage: "회원정보 조회에 실패하였습니다." });
+      err.failedApi = "회원정보 조회"
+      next(err);
     }
   };
 
   // 회원정보 수정
-  editProfile = async (req, res) => {
+  editProfile = async (req, res, next) => {
     try {
       const { userId } = res.locals.user;
       const { userImage, email, github, description } = req.body;
       // 1-1. userImage 유효성 검사
       if (typeof userImage === 'undefined') {
-        return res.status(412).json({ errorMessage: "프로필 이미지 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "프로필 이미지 형식이 일치하지 않습니다.");
       };
       // 1-2. email 유효성 검사
       if (typeof email === 'undefined') {
-        return res.status(412).json({ errorMessage: "이메일 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "이메일 형식이 일치하지 않습니다.");
       };
       // 1-3. github 유효성 검사
       if (typeof github === 'undefined') {
-        return res.status(412).json({ errorMessage: "깃허브 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "깃허브 형식이 일치하지 않습니다.");
       };
       // 1-4. description 유효성 검사
       if (typeof description === 'undefined') {
-        return res.status(412).json({ errorMessage: "소개글 형식이 일치하지 않습니다." });
+        throw errorWithCode(412, "소개글 형식이 일치하지 않습니다.");
       };
       await this.usersService.editProfile(userId, userImage, email, github, description);
       return res.status(200).json({ message: "회원정보 수정에 성공하였습니다." });
     } catch (err) {
       console.error(err);
-      return res.status(400).json({ errorMessage: "회원정보 수정에 실패하였습니다." });
+      err.failedApi = "회원정보 수정"
+      next(err);
     }
   };
 
   // 회원 탈퇴
-  withdrawal = async (req, res) => {
+  withdrawal = async (req, res, next) => {
     try {
       const { userId } = res.locals.user;
       await this.usersService.withdrawal(userId);
       return res.status(200).json({ message: "회원 탈퇴에 성공하였습니다." });
     } catch (err) {
-      console.error(err);
-      return res.status(err.statusCode).json({ errorMessage: err.message });
+      err.failedApi = "회원 탈퇴"
+      next(err);
     }
   };
-
 
 };
 

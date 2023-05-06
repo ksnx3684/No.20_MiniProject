@@ -4,51 +4,31 @@ const JWT = require('jsonwebtoken');
 class UsersService {
   usersRepository = new UsersRepository();
 
-  // Find Member with nickname
+  // 회원찾기 (with nickname)
   getUserWithNickname = async (nickname) => {
-    try {
-      const getUser = await this.usersRepository.getUserWithNickname(nickname);
-      return getUser;
-    } catch (err) {
-      console.error(err);
-      return null;
-    }
+    const getUser = await this.usersRepository.getUserWithNickname(nickname);
+    return getUser;
   };
 
   // 회원가입
   signup = async (nickname, password) => {
-    try {
-      await this.usersRepository.addUser(nickname, password);
-      return true
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+    await this.usersRepository.addUser(nickname, password);
+    return true;
   };
 
   // 로그인
   login = async (nickname, password) => {
-    try {
-      // Find Member's userId with nickname
-      const getUser = await this.usersRepository.getUserWithNickname(nickname);
-      // JWT create
-      const token = JWT.sign({ userId: getUser.userId }, "customized_secret_key");
-      return { token }
-    } catch (err) {
-      console.error(err);
-      return { errorMessage: "로그인에 실패하였습니다."};
-    }
+    // Find Member's userId with nickname
+    const getUser = await this.usersRepository.getUserWithNickname(nickname);
+    // JWT create
+    const token = JWT.sign({ userId: getUser.userId }, "customized_secret_key");
+    return { token };
   };
 
   // 회원정보 등록
   addProfile = async (userId, userImage, email, github, description) => {
-    try {
-      await this.usersRepository.addProfile(userId, userImage, email, github, description);
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    };
+    await this.usersRepository.addProfile(userId, userImage, email, github, description);
+    return true;
   };
 
   // 회원정보 조회
@@ -60,12 +40,6 @@ class UsersService {
   editProfile = async (userId, userImage, email, github, description) => {
     return await this.usersRepository.editProfile(userId, userImage, email, github, description);
   };
-
-  // 회원 탈퇴
-  withdrawal = async (userId) => {
-    return await this.usersRepository.withdrawal(userId);
-  }
-
 };
 
 module.exports = UsersService;
