@@ -5,11 +5,8 @@ class CommentsService {
     postsRepository = new PostsRepository(Posts);
     commentsRepository = new CommentsRepository(Comments);
 
-    allComments = async (_nickname, _postId) => {
-        const allComments = await this.commentsRepository.allComments(
-            _nickname,
-            _postId
-        );
+    allComments = async (_postId) => {
+        const allComments = await this.commentsRepository.allComments(_postId);
 
         allComments.sort((a, b) => b.createdAt - a.createdAt);
 

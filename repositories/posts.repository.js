@@ -74,12 +74,10 @@ class PostsRepository {
     return post;
   };
 
-  deletePost = async (_postId, nickname) => {
+  deletePost = async (nickname, _postId) => {
     const post = await this.model.update(
       { status: false },
-      { where: {
-        [Op.and]: [{ postId: _postId }, { nickname }],
-      }}
+      { where: { nickname, postId: _postId }}
     );
     return post;
   };

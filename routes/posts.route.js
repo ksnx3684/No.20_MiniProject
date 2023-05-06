@@ -22,6 +22,6 @@ router.get("/:_nickname/:_postId", postsController.getOnePost);
 router.put("/:_postId", authMiddleware, postsController.updatePost);
 
 // 게시글 삭제
-router.delete("/:_postId", authMiddleware, postsController.deletePost);
+router.patch("/:_postId", authMiddleware, postsController.deletePost);
 
 module.exports = router;
