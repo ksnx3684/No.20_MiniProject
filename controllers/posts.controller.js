@@ -45,7 +45,7 @@ class PostsController {
 
       await this.postsService.createPost(userId, nickname, title, content);
 
-      res.status(201).json({ message: "게시글을 작성했습니다." });
+      return res.status(201).json({ message: "게시글을 작성했습니다." });
     } catch (e) {
       e.failedApi = "게시글 작성";
       next(e);
@@ -60,42 +60,57 @@ class PostsController {
       const checkPost = await this.postsService.checkPost(_postId);
 
       if (!checkPost)
-          return res.status(404).json({ errorMessage: '게시글이 존재하지 않습니다.' });
+        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
       const post = await this.postsService.getOnePost(_nickname, _postId);
         
       return res.status(200).json({ post: post });
-    } catch (err) {
-      console.log(err);
-      return res.status(400).json({ errorMessage: '게시글 조회에 실패하였습니다.' });
+    } catch (e) {
+      console.log(e);
+      e.failedApi = "게시글 조회";
+      next(e);
     }
   }
 
   // 게시글 수정
   updatePost = async (req, res, next) => {
     try {
+      if (Object.keys(req.body).length !== 2) {
+        throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
+      }
+
       const { _nickname, _postId } = req.params;
       const { title, content } = req.body;
       const { nickname } = res.locals.user;
             
-      const post = await this.postsService.checkPost(_postId);
+      const checkPost = await this.postsService.checkPost(_postId);
 
-      if(!post)
-        return res.status(404).json({ errorMessage: '게시글이 존재하지 않습니다.' });
+      if(!checkPost)
+        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
             
-      if(post.nickname !== nickname)
-        return res.status(403).json({ errorMessage: '게시글 수정 권한이 존재하지 않습니다.' });
+      if(checkPost.nickname !== nickname)
+        throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
+
+      if (!title || title === "") {
+        throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
+      }
+
+      if (!content || content === "") {
+        throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
+      }
 
       await this.postsService.updatePost(_postId, title, content)
-        .catch((err) => {
-          console.log(err);
-          return res.status(400).json({ errorMessage: '게시글 수정이 정상적으로 처리되지 않았습니다.' });
+        .catch((e) => {
+          console.log(e);
+          throw errorWithCode(400, "게시글 수정이 정상적으로 처리되지 않았습니다.");
         });
-    } catch (err) {
-      console.log(err);
-      return res.status(err.statusCode).json({ errorMessage: '게시글 수정에 실패하였습니다.' });
+
+      return res.status(200).send(true);
+    } catch (e) {
+      console.log(e);
+      e.failedApi = "게시글 수정";
+      next(e);
     }
-      return res.status(200).json({ message: '게시글 수정에 성공하였습니다.' });
   }
 
   // 게시글 삭제
@@ -107,21 +122,23 @@ class PostsController {
       const post = await this.postsService.checkPost(_postId);
       
       if (!post)
-        return res.status(404).json({ errorMessage: '게시글이 존재하지 않습니다.' });
+        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
       if (!nickname || post.nickname !== nickname)
-        return res.status(403).json({ errorMessage: '게시글 삭제 권한이 존재하지 않습니다.' });
+        throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
 
       await this.postsService.deletePost(nickname, _postId)
-        .catch((err) => {
-          console.log(err);
-          return res.status(400).json({ errorMessage: '게시글이 정상적으로 삭제되지 않았습니다.' });
+        .catch((e) => {
+          console.log(e);
+          throw errorWithCode(400, "게시글이 정상적으로 삭제되지 않았습니다.");
         });
-    } catch (err) {
-      console.log(err);
-      return res.status(400).json({ errorMessage: '게시글 삭제에 실패하였습니다.' });
+        
+      return res.status(200).send(true);
+    } catch (e) {
+      console.log(e);
+      e.failedApi = "게시글 삭제";
+      next(e);
     }
-      return res.status(200).json({ message: '게시글 삭제에 성공하였습니다.' });
   }
 }
 

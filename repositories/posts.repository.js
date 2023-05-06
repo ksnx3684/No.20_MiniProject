@@ -78,11 +78,12 @@ class PostsRepository {
   };
 
   deletePost = async (_postId, nickname) => {
-    const post = await Posts.destroy({
-      where: {
+    const post = await Posts.update(
+      { status: false },
+      { where: {
         [Op.and]: [{ postId: _postId }, { nickname }],
-      },
-    });
+      }}
+    );
     return post;
   };
 
