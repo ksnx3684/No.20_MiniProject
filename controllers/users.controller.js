@@ -16,8 +16,8 @@ class UsersController {
       if (getUser) {
         throw errorWithCode(412, "중복된 닉네임입니다.");
       }
-      // 1-2. 닉네임 조건 검사 (최소 6글자 이상, 알파벳 대소문자, 숫자만 가능)
-      if ((!/^[a-zA-Z0-9]+$/.test(nickname)) || (nickname.length < 6)) {
+      // 1-2. 닉네임 조건 검사 (알파벳 1글자 이상 필수, 알파벳 대소문자 & 숫자만 가능, 길이는 최소 6 <= x <= 12,)
+      if ((!/^(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/.test(nickname)) || (nickname.length < 6) || (nickname.length > 12)) {
         throw errorWithCode(412, "닉네임의 형식이 일치하지 않습니다.");
       };
       // 1-3. 패스워드에 닉네임 포함여부 검사
