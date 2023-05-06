@@ -35,6 +35,7 @@ class CommentsService {
 
     updateComment = async (comment, _postId, nickname, _commentId) => {
         const check = await this.authorization(_commentId, nickname, _postId);
+        console.log(check);
         if (check !== true)
             throw errorWithCode(404, "댓글의 수정 권한이 존재하지 않습니다.");
 
@@ -53,7 +54,7 @@ class CommentsService {
     };
 
     authorization = async (_commentId, nickname, _postId) => {
-        const existPost = await this.postRepository.checkPost(_postId);
+        const existPost = await this.postsRepository.checkPost(_postId);
         if (!existPost) throw errorWithCode(404, "게시글이 존재하지 않습니다");
         const existComment = await this.commentsRepository.oneComment(
             _commentId
