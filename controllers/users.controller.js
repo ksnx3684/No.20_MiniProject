@@ -108,11 +108,40 @@ class UsersController {
   getProfile = async (req, res) => {
     try {
       const { userId } = res.locals.user;
-      const { userInfo, errorMessage } = await this.usersService.getProfile(userId);
-      
+      const getProfileData = await this.usersService.getProfile(userId);
+      return res.status(200).json({ userInfo: getProfileData });
     } catch (err) {
       console.error(err);
       return res.status(400).json({ errorMessage: "회원정보 조회에 실패하였습니다." });
+    }
+  };
+
+  // 회원정보 수정
+  editProfile = async (req, res) => {
+    try {
+      const { userId } = res.locals.user;
+      const { userImage, email, github, description } = req.body;
+      // 1-1. userImage 유효성 검사
+      if (typeof userImage === 'undefined') {
+        return res.status(412).json({ errorMessage: "프로필 이미지 형식이 일치하지 않습니다." });
+      };
+      // 1-2. email 유효성 검사
+      if (typeof email === 'undefined') {
+        return res.status(412).json({ errorMessage: "이메일 형식이 일치하지 않습니다." });
+      };
+      // 1-3. github 유효성 검사
+      if (typeof github === 'undefined') {
+        return res.status(412).json({ errorMessage: "깃허브 형식이 일치하지 않습니다." });
+      };
+      // 1-4. description 유효성 검사
+      if (typeof description === 'undefined') {
+        return res.status(412).json({ errorMessage: "소개글 형식이 일치하지 않습니다." });
+      };
+      await this.usersService.editProfile(userId, userImage, email, github, description);
+      return res.status(200).json({ message: "회원정보 수정에 성공하였습니다." });
+    } catch (err) {
+      console.error(err);
+      return res.status(400).json({ errorMessage: "회원정보 수정에 실패하였습니다." });
     }
   };
 

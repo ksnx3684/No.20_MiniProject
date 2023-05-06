@@ -16,7 +16,7 @@ class UsersService {
     }
   };
 
-  // Join in
+  // 회원가입
   signup = async (nickname, password) => {
     try {
       await this.usersRepository.addUser(nickname, password);
@@ -27,23 +27,18 @@ class UsersService {
     }
   };
 
+  // 회원정보 등록
   addProfile = async (userId, userImage, email, github, description) => {
     try {
-      await this.usersRepository.addProfile(
-        userId,
-        userImage,
-        email,
-        github,
-        description
-      );
+      await this.usersRepository.addProfile(userId, userImage, email, github, description);
       return true;
     } catch (err) {
       console.error(err);
       return false;
-    }
+    };
   };
-
-  // log in
+  
+  // 로그인
   login = async (nickname, password) => {
     try {
       // Find Member's userId with nickname
@@ -59,6 +54,16 @@ class UsersService {
       return { errorMessage: "로그인에 실패하였습니다." };
     }
   };
-}
+  
+  // 회원정보 조회
+  getProfile = async (userId) => {
+    return await this.usersRepository.getProfile(userId);
+  };
+
+  // 회원정보 수정
+  editProfile = async (userId, userImage, email, github, description) => {
+    return await this.usersRepository.editProfile(userId, userImage, email, github, description);
+  };
+};
 
 module.exports = UsersService;
