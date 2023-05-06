@@ -1,5 +1,5 @@
-const { Op } = require('sequelize');
-const { Posts } = require('../models');
+const { Op } = require("sequelize");
+const { Posts } = require("../models");
 
 class PostsRepository {
   constructor(model) {
@@ -7,32 +7,32 @@ class PostsRepository {
   }
 
   findAllPosts = async () => {
-    return await this.model.findAll();
+    return await this.model.findAll({ where: { status: true } });
   };
 
   findUserPosts = async (nickname) => {
-    return await this.model.findAll({ where: { nickname } });
+    return await this.model.findAll({ where: { nickname, status: true } });
   };
 
   createPost = async (userId, nickname, title, content) => {
     await this.model.create({ UserId: userId, nickname, title, content });
   };
-  
-  getOnePost = async (_nickname, _postId) => {
+
+  getOnePost = async (_postId) => {
     const post = await Posts.findOne({
       where: { postId: _postId },
-        attributes: [
-          'postId',
-          'UserId',
-          'title',
-          'content',
-          'likes',
-          'status',
-          'createdAt',
-          'updatedAt',
-        ],
-      });
-      return post;
+      attributes: [
+        "postId",
+        "UserId",
+        "title",
+        "content",
+        "likes",
+        "status",
+        "createdAt",
+        "updatedAt",
+      ],
+    });
+    return post;
   };
 
   checkPost = async (_postId) => {
@@ -58,7 +58,6 @@ class PostsRepository {
     });
     return post;
   };
-
 }
 
 module.exports = PostsRepository;

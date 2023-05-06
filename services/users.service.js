@@ -1,8 +1,9 @@
-const UsersRepository = require('../repositories/users.repository.js');
-const JWT = require('jsonwebtoken');
+const UsersRepository = require("../repositories/users.repository.js");
+const JWT = require("jsonwebtoken");
+const { Users, UserInfo } = require("../models");
 
 class UsersService {
-  usersRepository = new UsersRepository();
+  usersRepository = new UsersRepository(Users, UserInfo);
 
   // Find Member with nickname
   getUserWithNickname = async (nickname) => {
@@ -19,24 +20,10 @@ class UsersService {
   signup = async (nickname, password) => {
     try {
       await this.usersRepository.addUser(nickname, password);
-      return true
+      return true;
     } catch (err) {
       console.error(err);
       return false;
-    }
-  };
-
-  // 로그인
-  login = async (nickname, password) => {
-    try {
-      // Find Member's userId with nickname
-      const getUser = await this.usersRepository.getUserWithNickname(nickname);
-      // JWT create
-      const token = JWT.sign({ userId: getUser.userId }, "customized_secret_key");
-      return { token }
-    } catch (err) {
-      console.error(err);
-      return { errorMessage: "로그인에 실패하였습니다."};
     }
   };
 
@@ -50,7 +37,24 @@ class UsersService {
       return false;
     };
   };
-
+  
+  // 로그인
+  login = async (nickname, password) => {
+    try {
+      // Find Member's userId with nickname
+      const getUser = await this.usersRepository.getUserWithNickname(nickname);
+      // JWT create
+      const token = JWT.sign(
+        { userId: getUser.userId },
+        "customized_secret_key"
+      );
+      return { token };
+    } catch (err) {
+      console.error(err);
+      return { errorMessage: "로그인에 실패하였습니다." };
+    }
+  };
+  
   // 회원정보 조회
   getProfile = async (userId) => {
     return await this.usersRepository.getProfile(userId);
@@ -60,9 +64,6 @@ class UsersService {
   editProfile = async (userId, userImage, email, github, description) => {
     return await this.usersRepository.editProfile(userId, userImage, email, github, description);
   };
-
-  
-
 };
 
 module.exports = UsersService;
