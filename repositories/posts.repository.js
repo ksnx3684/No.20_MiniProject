@@ -35,7 +35,7 @@ class PostsRepository {
   };
 
   getPrevPost = async (_postId) => {
-    const post = await Posts.findOne({
+    const post = await this.model.findOne({
       where: {
         postId: {
           [Op.lt]: _postId
@@ -48,7 +48,7 @@ class PostsRepository {
   };
 
   getNextPost = async (_postId) => {
-    const post = await Posts.findOne({
+    const post = await this.model.findOne({
       where: {
         postId: {
           [Op.gt]: _postId

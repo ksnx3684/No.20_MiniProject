@@ -6,7 +6,7 @@ class CommentsService {
     commentsRepository = new CommentsRepository(Comments);
 
     allComments = async (_nickname, _postId) => {
-        const allComments = await commentsRepository.allComments(
+        const allComments = await this.commentsRepository.allComments(
             _nickname,
             _postId
         );

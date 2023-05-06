@@ -3,9 +3,9 @@ class CommentsRepository {
         this.commentsModel = commentsModel;
     }
 
-    allComments = async (_nickname, _postId) => {
+    allComments = async (_postId) => {
         const allComments = await this.commentsModel.findAll({
-            where: { postId: _postId, nickname: _nickname },
+            where: { postId: _postId },
         });
         return allComments;
     };
