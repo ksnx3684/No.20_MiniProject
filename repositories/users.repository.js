@@ -38,6 +38,10 @@ class UsersRepository {
       { where: { UserId : userId }}
     );
   };
-}
+  // 회원 탈퇴
+  withdrawal = async ( userId ) => {
+    await this.usersModel.destroy({ where: { userId }});
+  };
+};
 
 module.exports = UsersRepository;
