@@ -68,17 +68,41 @@ class PostsService {
 
   getOnePost = async (_postId) => {
     const post = await this.postsRepository.getOnePost(_postId);
-    return post;
-  };
+    const prevPost = await this.postsRepository.getPrevPost(_postId);
+    const nextPost = await this.postsRepository.getNextPost(_postId);
 
-  getPrePost = async (_postId) => {
-    const post = await this.postsRepository.getOnePost(_postId);
-    return post;
-  };
-
-  getNextPost = async (_postId) => {
-    const post = await this.postsRepository.getOnePost(_postId);
-    return post;
+    if (!prevPost)
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: '',
+        prevPostTitle: '',
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title
+      }
+    
+    if (!nextPost)
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: '',
+        nextPostTitle: ''
+      }
+    else {
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title
+      }
+    }
   };
 
   checkPost = async (_postId) => {
