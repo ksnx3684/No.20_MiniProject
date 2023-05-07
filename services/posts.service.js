@@ -71,38 +71,20 @@ class PostsService {
     if (!post)
       throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
-    const prevPost = await this.postsRepository.getPrevPost(_postId);
-    const nextPost = await this.postsRepository.getNextPost(_postId);
-    if (!prevPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: '',
-        prevPostTitle: '',
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title
-      }
-    if (!nextPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: '',
-        nextPostTitle: ''
-      }
-    else {
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title
-      }
+    let prevPost = await this.postsRepository.getPrevPost(_postId);
+    let nextPost = await this.postsRepository.getNextPost(_postId);
+
+    if (!prevPost) prevPost = '';
+    if (!nextPost) nextPost = '';
+
+    return {
+      nickname: post.nickname,
+      title: post.title,
+      content: post.content,
+      prevPostId: prevPost.postId,
+      prevPostTitle: prevPost.title,
+      nextPostId: nextPost.postId,
+      nextPostTitle: nextPost.title
     }
   };
 
