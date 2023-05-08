@@ -22,12 +22,13 @@ class CommentsService {
     };
 
     createComment = async (comment, _postId, nickname, userId) => {
-        await this.commentsRepository.createComment(
+        const createComment = await this.commentsRepository.createComment(
             comment,
             _postId,
             nickname,
             userId
         );
+        return createComment;
     };
 
     updateComment = async (comment, _postId, nickname, _commentId) => {
@@ -42,12 +43,17 @@ class CommentsService {
             nickname
         );
     };
+
     deleteComment = async (_commentId, nickname, _postId) => {
         const check = await this.authorization(_commentId, nickname, _postId);
         if (check !== true)
             throw errorWithCode(404, "댓글의 삭제 권한이 존재하지 않습니다.");
 
-        await this.commentsRepository.deleteComment(nickname, _commentId);
+        const deleted = await this.commentsRepository.deleteComment(
+            nickname,
+            _commentId
+        );
+        return deleted;
     };
 
     authorization = async (_commentId, nickname, _postId) => {
