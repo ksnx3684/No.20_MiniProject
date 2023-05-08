@@ -66,9 +66,11 @@ class PostsService {
     await this.postsRepository.createPost(userId, nickname, title, content);
   };
 
-  getOnePost = async (_postId) => {
+  getOnePost = async (_postId, postDetail) => {
     const post = await this.postsRepository.getOnePost(_postId);
     if (!post) throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+
+    if(!postDetail) return post;
 
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
@@ -108,11 +110,6 @@ class PostsService {
       }
   };
 
-  checkPost = async (_postId) => {
-    const post = await this.postsRepository.checkPost(_postId);
-    return post;
-  };
-
   updatePost = async (_postId, title, content) => {
     const post = await this.postsRepository.updatePost(_postId, title, content);
     return post;
@@ -122,6 +119,7 @@ class PostsService {
     const post = await this.postsRepository.deletePost(nickname, _postId);
     return post;
   };
+
 }
 
 module.exports = PostsService;
