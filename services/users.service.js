@@ -23,7 +23,7 @@ class UsersService {
     const getUser = await this.usersRepository.getUserWithNickname(nickname);
     // JWT create
     const token = JWT.sign({ userId: getUser.userId }, "customized_secret_key");
-    return { token };
+    return token;
   };
 
   // 회원정보 등록
