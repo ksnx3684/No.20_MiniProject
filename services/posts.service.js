@@ -66,31 +66,48 @@ class PostsService {
     await this.postsRepository.createPost(userId, nickname, title, content);
   };
 
-  getOnePost = async (_postId) => {
+  getOnePost = async (_postId, postDetail) => {
     const post = await this.postsRepository.getOnePost(_postId);
     if (!post) throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
-    let prevPost = await this.postsRepository.getPrevPost(_postId);
-    let nextPost = await this.postsRepository.getNextPost(_postId);
+    if(!postDetail) return post;
 
-    if (!prevPost) prevPost = '';
-    if (!nextPost) nextPost = '';
+    const prevPost = await this.postsRepository.getPrevPost(_postId);
+    const nextPost = await this.postsRepository.getNextPost(_postId);
 
-    return {
-      nickname: post.nickname,
-      title: post.title,
-      content: post.content,
-      prevPostId: prevPost.postId,
-      prevPostTitle: prevPost.title,
-      nextPostId: nextPost.postId,
-      nextPostTitle: nextPost.title,
-      postComment: post.Comments,
-    }
-  };
-
-  checkPost = async (_postId) => {
-    const post = await this.postsRepository.checkPost(_postId);
-    return post;
+    if (!prevPost)
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: "",
+        prevPostTitle: "",
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title,
+        postComment: post.Comments,
+      }
+    else if (!nextPost)
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: "",
+        nextPostTitle: "",
+        postComment: post.Comments,
+      }
+    else
+      return {
+        nickname: post.nickname,
+        title: post.title,
+        content: post.content,
+        prevPostId: prevPost.postId,
+        prevPostTitle: prevPost.title,
+        nextPostId: nextPost.postId,
+        nextPostTitle: nextPost.title,
+        postComment: post.Comments,
+      }
   };
 
   updatePost = async (_postId, title, content) => {
@@ -102,6 +119,7 @@ class PostsService {
     const post = await this.postsRepository.deletePost(nickname, _postId);
     return post;
   };
+
 }
 
 module.exports = PostsService;
