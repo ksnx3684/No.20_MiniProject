@@ -170,7 +170,15 @@ describe("[Posts Repository] Unit Test", () => {
   test("getOnePost method", async () => {
     const postId = 1;
 
-    const returnValue = {
+    const commentObject = {
+      commentId: 1,
+      comment: "comment",
+      nickname: "nickname",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const postObject = {
       postId: postId,
       UserId: 1,
       title: "title",
@@ -179,68 +187,60 @@ describe("[Posts Repository] Unit Test", () => {
       status: true,
       createdAt: new Date(),
       updatedAt: new Date(),
-      com: {
-        commentId: 1,
-        comment: "comment",
-        nickname: "nickname",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      com: commentObject,
     };
 
     mockPostsModel.findOne = jest.fn(() => {
-      return returnValue.status === true ? returnValue : null;
+      return postObject.status === true ? postObject : null;
     });
 
     const post = await postsRepository.getOnePost(postId);
 
     expect(postsRepository.model.findOne).toHaveBeenCalledTimes(1);
 
-    // TODO
-    // expect(postsRepository.model.findOne).toHaveBeenCalledWith({
-    //   where: { postId: postId, status: true },
-    //   attributes: [
-    //     "postId",
-    //     "UserId",
-    //     "title",
-    //     "content",
-    //     "likes",
-    //     "status",
-    //     "createdAt",
-    //     "updatedAt",
-    //   ],
-    //   include: [
-    //     {
-    //       model: this.comModel,
-    //       attributes: [
-    //         "commentId",
-    //         "comment",
-    //         "nickname",
-    //         "createdAt",
-    //         "updatedAt",
-    //       ],
-    //     },
-    //   ],
-    //   where: {
-    //     postId: postId,
-    //   },
-    // });
+    // TODO: comModel..
+    expect(postsRepository.model.findOne).toHaveBeenCalledWith({
+      where: { postId: postId, status: true },
+      attributes: [
+        "postId",
+        "UserId",
+        "nickname",
+        "title",
+        "content",
+        "likes",
+        "status",
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+        {
+          model: postsRepository.comModel,
+          attributes: [
+            "commentId",
+            "comment",
+            "nickname",
+            "createdAt",
+            "updatedAt",
+          ],
+        },
+      ],
+    });
 
     expect(post).toEqual({
-      postId: returnValue.postId,
-      UserId: returnValue.UserId,
-      title: returnValue.title,
-      content: returnValue.content,
-      likes: returnValue.likes,
-      status: returnValue.status,
-      createdAt: returnValue.createdAt,
-      updatedAt: returnValue.updatedAt,
+      postId: postObject.postId,
+      UserId: postObject.UserId,
+      title: postObject.title,
+      content: postObject.content,
+      likes: postObject.likes,
+      status: postObject.status,
+      createdAt: postObject.createdAt,
+      updatedAt: postObject.updatedAt,
       com: {
-        commentId: returnValue.com.commentId,
-        comment: returnValue.com.comment,
-        nickname: returnValue.com.nickname,
-        createdAt: returnValue.com.createdAt,
-        updatedAt: returnValue.com.updatedAt,
+        commentId: postObject.com.commentId,
+        comment: postObject.com.comment,
+        nickname: postObject.com.nickname,
+        createdAt: postObject.com.createdAt,
+        updatedAt: postObject.com.updatedAt,
       },
     });
   });
@@ -438,10 +438,10 @@ describe("[Posts Repository] Unit Test", () => {
 
   // 게시글 삭제 (return value, parameter)
   test("deletePost method", async () => {
-    const [_postId, nickname] = [1, "nickname"];
+    const [nickname, postId] = ["nickname", 1];
 
     const postBeforeDelete = {
-      postId: _postId,
+      postId: postId,
       UserId: 1,
       nickname: nickname,
       title: "title",
@@ -465,15 +465,14 @@ describe("[Posts Repository] Unit Test", () => {
       };
     });
 
-    const postAfterDelete = await postsRepository.deletePost(_postId);
+    const postAfterDelete = await postsRepository.deletePost(nickname, postId);
 
     expect(postsRepository.model.update).toHaveBeenCalledTimes(1);
 
-    // TODO
-    // expect(postsRepository.model.update).toHaveBeenCalledWith(
-    //   { status: false },
-    //   { where: { nickname, postId: _postId } }
-    // );
+    expect(postsRepository.model.update).toHaveBeenCalledWith(
+      { status: false },
+      { where: { nickname, postId } }
+    );
 
     expect(postAfterDelete.status).toEqual(false);
   });
