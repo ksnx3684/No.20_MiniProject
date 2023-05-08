@@ -1,18 +1,16 @@
 const errorWithCode = require("../utils/error");
 
 const PostsService = require("../services/posts.service");
-const CommentsService = require("../services/comments.service");
 
 class PostsController {
   postsService = new PostsService();
-  commentsService = new CommentsService();
 
   getMainPage = async (req, res, next) => {
     try {
       // 모든 게시글 조회
       const posts = await this.postsService.findAllPosts();
 
-      return res.status(200).json({ posts, result: true });
+      return res.status(200).json({ posts });
     } catch (e) {
       e.failedApi = "게시글 조회";
       next(e);
@@ -24,13 +22,13 @@ class PostsController {
       const { _nickname } = req.params;
       if (parseInt(_nickname) === Number(_nickname)) {
         console.log("POSTID");
-        next();
+        return next();
       }
 
       // 특정 닉네임의 게시글 조회
       const posts = await this.postsService.findUserPosts(_nickname);
 
-      res.status(200).json({ posts, result: true });
+      res.status(200).json({ posts });
     } catch (e) {
       e.failedApi = "게시글 조회";
       next(e);
@@ -56,7 +54,7 @@ class PostsController {
       // 게시글 작성
       await this.postsService.createPost(userId, nickname, title, content);
 
-      return res.status(201).send(true);
+      return res.status(201);
     } catch (e) {
       e.failedApi = "게시글 작성";
       next(e);
@@ -67,11 +65,11 @@ class PostsController {
   getOnePost = async (req, res, next) => {
     try {
       const { _postId } = req.params;
+      const postDetail = true;
 
-      const post = await this.postsService.getOnePost(_postId);
-      const comments = await this.commentsService.allComments(_postId);
+      const post = await this.postsService.getOnePost(_postId, postDetail);
 
-      return res.status(200).json({ post, result: true });
+      return res.status(200).json({ post });
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 상세 조회";
@@ -89,11 +87,9 @@ class PostsController {
       const { _postId } = req.params;
       const { title, content } = req.body;
       const { nickname } = res.locals.user;
+      const postDetail = false;
 
-      const checkPost = await this.postsService.checkPost(_postId);
-
-      if (!checkPost)
-        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
 
       if (checkPost.nickname !== nickname)
         throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
@@ -111,7 +107,7 @@ class PostsController {
         }
       );
 
-      return res.status(200).json({message: "게시글 수정에 성공하였습니다.", result: true,});
+      return res.status(200).json({message: "게시글 수정에 성공하였습니다."});
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 수정";
@@ -124,13 +120,11 @@ class PostsController {
     try {
       const { _postId } = req.params;
       const { nickname } = res.locals.user;
+      const postDetail = false;
 
-      const post = await this.postsService.checkPost(_postId);
+      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
 
-      if (!post)
-        throw errorWithCode(404, "게시글이 존재하지 않습니다.");
-
-      if (!nickname || post.nickname !== nickname)
+      if (!nickname || checkPost.nickname !== nickname)
         throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
 
       await this.postsService.deletePost(nickname, _postId)
@@ -140,7 +134,7 @@ class PostsController {
         }
       );
 
-      return res.status(200).json({message: "게시글 삭제에 성공하였습니다.", result: true,});
+      return res.status(200).json({message: "게시글 삭제에 성공하였습니다."});
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 삭제";

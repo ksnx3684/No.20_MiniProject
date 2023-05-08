@@ -24,6 +24,7 @@ class PostsRepository {
       attributes: [
         "postId",
         "UserId",
+        "nickname",
         "title",
         "content",
         "likes",
@@ -43,9 +44,6 @@ class PostsRepository {
           ],
         },
       ],
-      where: {
-        postId: _postId,
-      },
     });
       return post;
     };
@@ -71,13 +69,6 @@ class PostsRepository {
         },
         status: true,
       },
-    });
-    return post;
-  };
-
-  checkPost = async (_postId) => {
-    const post = await this.model.findOne({
-      where: { postId: _postId, status: true },
     });
     return post;
   };
