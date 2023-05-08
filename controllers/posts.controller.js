@@ -1,11 +1,9 @@
 const errorWithCode = require("../utils/error");
 
 const PostsService = require("../services/posts.service");
-const CommentsService = require("../services/comments.service");
 
 class PostsController {
   postsService = new PostsService();
-  commentsService = new CommentsService();
 
   getMainPage = async (req, res, next) => {
     try {
@@ -24,7 +22,7 @@ class PostsController {
       const { _nickname } = req.params;
       if (parseInt(_nickname) === Number(_nickname)) {
         console.log("POSTID");
-        next();
+        return next();
       }
 
       // 특정 닉네임의 게시글 조회
@@ -69,7 +67,6 @@ class PostsController {
       const { _postId } = req.params;
 
       const post = await this.postsService.getOnePost(_postId);
-      const comments = await this.commentsService.allComments(_postId);
 
       return res.status(200).json({ post, result: true });
     } catch (e) {
