@@ -1,5 +1,4 @@
-const PostsRepository = require("./../../repositories/posts.repository");
-const CommentsRepository = require("./../../repositories/comments.repository");
+const PostsRepository = require("./../../../repositories/posts.repository");
 const { Op } = require("sequelize");
 
 let mockPostsModel = {
