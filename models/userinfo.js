@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       });
     }
   }
+  
   UserInfo.init(
     {
       userInfoId: {
