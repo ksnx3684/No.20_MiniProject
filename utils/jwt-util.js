@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY; // env에서 SECRET_KEY 불러오기
-const ACCESS_TOKEN_EXPIRE_TIME = "5s"; // AccessToken 소멸시간 설정
+const ACCESS_TOKEN_EXPIRE_TIME = "10h"; // AccessToken 소멸시간 설정
 const REFRESH_TOKEN_EXPIRE_TIME = "14d"; // RefreshToken 소멸시간 설정
 
 module.exports = {
