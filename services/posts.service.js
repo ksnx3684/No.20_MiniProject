@@ -11,7 +11,7 @@ class PostsService {
   findAllPosts = async () => {
     const posts = await this.postsRepository.findAllPosts();
     if (!posts.length) {
-      throw errorWithCode(404, "게시글이 존재하지 않습니다");
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
     }
 
     // 최근 생성 순으로 정렬
@@ -25,7 +25,7 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.UserId,
+        UserId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
@@ -36,12 +36,12 @@ class PostsService {
   findUserPosts = async (_nickname) => {
     const user = await this.usersRepository.getUserWithNickname(_nickname);
     if (!user) {
-      throw errorWithCode(404, "존재하지 않는 사용자입니다.");
+      throw errorWithCode(404, "사용자가 존재하지 않습니다.");
     }
 
     const posts = await this.postsRepository.findUserPosts(_nickname);
     if (!posts.length) {
-      throw errorWithCode(404, "게시글이 존재하지 않습니다");
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
     }
     // 게시글 갯수를 20개로 제한
     if (posts.length > 20) {
@@ -54,7 +54,7 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.UserId,
+        UserId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
@@ -70,7 +70,7 @@ class PostsService {
     const post = await this.postsRepository.getOnePost(_postId);
     if (!post) throw errorWithCode(404, "게시글이 존재하지 않습니다.");
 
-    if(!postDetail) return post;
+    if (!postDetail) return post;
 
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
@@ -85,7 +85,7 @@ class PostsService {
         nextPostId: nextPost.postId,
         nextPostTitle: nextPost.title,
         postComment: post.Comments,
-      }
+      };
     else if (!nextPost)
       return {
         nickname: post.nickname,
@@ -96,7 +96,7 @@ class PostsService {
         nextPostId: "",
         nextPostTitle: "",
         postComment: post.Comments,
-      }
+      };
     else
       return {
         nickname: post.nickname,
@@ -107,7 +107,7 @@ class PostsService {
         nextPostId: nextPost.postId,
         nextPostTitle: nextPost.title,
         postComment: post.Comments,
-      }
+      };
   };
 
   updatePost = async (_postId, title, content) => {
@@ -119,7 +119,6 @@ class PostsService {
     const post = await this.postsRepository.deletePost(nickname, _postId);
     return post;
   };
-
 }
 
 module.exports = PostsService;
