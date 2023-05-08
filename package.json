@@ -23,9 +23,11 @@
   "homepage": "https://github.com/ksnx3684/No.20_MiniProject#readme",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.2.4",
+    "redis": "^4.6.6",
     "sequelize": "^6.31.1"
   },
   "devDependencies": {
