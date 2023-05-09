@@ -62,5 +62,36 @@ describe("Layered Architecture Pattern Comments Controller Unit Test", () => {
             resLocals.nickname,
             resLocals.userId
         );
+        expect();
+    });
+    test("updateComment", async () => {
+        const updatedCRequestBody = {
+            comment: "updated!",
+        };
+        const requestParams = {
+            _postId: 1,
+            _commentId: 1,
+        };
+        const resLocals = {
+            nickname: "hawook",
+        };
+
+        mockRequest.body = updatedCRequestBody;
+        mockRequest.params = requestParams;
+        mockResponse.locals.user = resLocals;
+
+        await commmentsController.updateComment(
+            mockRequest,
+            mockResponse,
+            next
+        );
+
+        expect(mockCommentsModel.updateComment).toHaveBeenCalledTimes(1);
+        expect(mockCommentsModel.updateComment).toHaveBeenCalledWith(
+            updatedCRequestBody.comment,
+            requestParams._postId,
+            resLocals.nickname,
+            requestParams._commentId
+        );
     });
 });
