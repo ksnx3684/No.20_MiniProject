@@ -150,6 +150,7 @@ class UsersController {
       // 쿠키 생성
       res.cookie("accessToken", `Bearer ${accessToken}`);
       res.cookie("refreshToken", `Bearer ${refreshToken}`);
+
       // 쿠키 생성 - (강의)
       // res.cookie("authorization", `Bearer ${token}`); // jwt 기본 방식
 
@@ -230,6 +231,17 @@ class UsersController {
       return res.status(200).send(true);
     } catch (err) {
       err.failedApi = "회원 탈퇴";
+      next(err);
+    }
+  };
+
+  // 로그인 검증 - 테스트용
+  authMiddlewareTest = async (req, res, next) => {
+    try {
+      const { userId, nickname } = res.locals.user;
+      return res.status(200).json({ userId, nickname });
+    } catch (err) {
+      err.failedApi = "로그인";
       next(err);
     }
   };
