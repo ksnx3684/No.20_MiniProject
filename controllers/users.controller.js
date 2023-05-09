@@ -156,7 +156,7 @@ class UsersController {
       return res.status(200).json({ accessToken, refreshToken });
     } catch (err) {
       console.error(err);
-      return res.status(400).send("로그인 실패");
+      return res.status(400).send(false);
     }
   };
 
@@ -166,7 +166,7 @@ class UsersController {
       res.locals.user;
       res.clearCookie("authorization"); // 이 방식도 가능하고,
       // res.cookie('authorization', '', { maxAge: -1 }); // 이 방식도 가능
-      return res.status(200).json({ message: "로그아웃 되었습니다." });
+      return res.status(200).send(true);
     } catch (err) {
       err.failedApi = "로그아웃";
       next(err);
@@ -214,9 +214,7 @@ class UsersController {
         github,
         description
       );
-      return res
-        .status(200)
-        .json({ message: "회원정보 수정에 성공하였습니다." });
+      return res.status(200).send(true);
     } catch (err) {
       console.error(err);
       err.failedApi = "회원정보 수정";
@@ -229,7 +227,7 @@ class UsersController {
     try {
       const { userId } = res.locals.user;
       await this.usersService.withdrawal(userId);
-      return res.status(200).json({ message: "회원 탈퇴에 성공하였습니다." });
+      return res.status(200).send(true);
     } catch (err) {
       err.failedApi = "회원 탈퇴";
       next(err);
