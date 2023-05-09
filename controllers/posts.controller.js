@@ -21,7 +21,6 @@ class PostsController {
     try {
       const { _nickname } = req.params;
       if (parseInt(_nickname) === Number(_nickname)) {
-        console.log("POSTID");
         return next();
       }
 
@@ -98,16 +97,9 @@ class PostsController {
         throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
 
       if (!content || content === "")
-          throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
+        throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
 
-      await this.postsService.updatePost(_postId, title, content)
-        .catch((e) => {
-          console.log(e);
-          throw errorWithCode(400, "게시글 수정이 정상적으로 처리되지 않았습니다.");
-        }
-      );
-
-      return res.status(200).json({message: "게시글 수정에 성공하였습니다."});
+      return res.status(200).json({ message: "게시글 수정에 성공하였습니다." });
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 수정";
@@ -127,14 +119,12 @@ class PostsController {
       if (!nickname || checkPost.nickname !== nickname)
         throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
 
-      await this.postsService.deletePost(nickname, _postId)
-        .catch((e) => {
-          console.log(e);
-          throw errorWithCode(400, "게시글이 정상적으로 삭제되지 않았습니다.");
-        }
-      );
+      await this.postsService.deletePost(nickname, _postId).catch((e) => {
+        console.log(e);
+        throw errorWithCode(400, "게시글이 정상적으로 삭제되지 않았습니다.");
+      });
 
-      return res.status(200).json({message: "게시글 삭제에 성공하였습니다."});
+      return res.status(200).json({ message: "게시글 삭제에 성공하였습니다." });
     } catch (e) {
       console.log(e);
       e.failedApi = "게시글 삭제";

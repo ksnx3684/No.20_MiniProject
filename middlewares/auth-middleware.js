@@ -1,67 +1,140 @@
-const jwt = require('jsonwebtoken');
-const { Users } = require('../models');
+const RedisClientRepository = require("../utils/redis-util.js");
+const redisClientRepository = new RedisClientRepository();
+const jwt = require("../utils/jwt-util.js");
 
-// 사용자 인증 미들웨어
+// 사용자 인증 미들웨어 - Redis 방식
+module.exports = async (req, res, next) => {
+  // 쿠키에 있는 토큰 가져오기
+  const { accessToken, refreshToken } = req.cookies;
+  console.log(req.cookies);
 
+  // accessToken, refreshToken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
+  const isAccessToken = accessToken ? true : false;
+  const isRefreshToken = refreshToken ? true : false;
+  console.log(
+    `isAccessToken: ${isAccessToken}, isRefreshToken: ${isRefreshToken}`
+  );
+  if (!isAccessToken || !isRefreshToken)
+    return res
+      .status(419)
+      .json({ ok: false, message: "쿠키에 토큰 없음, 재로그인 필요" });
+
+  // accessToken, refreshToken 토큰 타입, 토큰 값 분할 할당
+  const [accessTokenType, accessTokenValue] = accessToken.split(" ");
+  const [refreshTokenType, refreshTokenValue] = refreshToken.split(" ");
+  console.log(
+    `accessTokenType: ${accessTokenType}, refreshTokenType: ${refreshTokenType}`
+  );
+
+  // accessToken, refreshToken 토큰 타입 확인 : (falsy) 타입이 정상적이지 않습니다.
+  const isAccessTokenType = jwt.validateTokenType(accessTokenType);
+  const isRefreshTokenType = jwt.validateTokenType(refreshTokenType);
+  console.log(
+    `isAccessTokenType: ${isAccessTokenType}, isRefreshTokenType: ${isRefreshTokenType}`
+  );
+  if (!isAccessTokenType || !isRefreshTokenType) {
+    return res
+      .status(419)
+      .json({ ok: false, message: "타입 불량, 재로그인 필요" });
+  }
+
+  try {
+    // 토큰 값 JWT 검증 : (falsy) 토큰이 만료되었습니다.
+    const isAccessTokenValue = jwt.validateTokenValue(accessTokenValue);
+    const isRefreshTokenValue = jwt.validateTokenValue(refreshTokenValue);
+    console.log(
+      `isAccessTokenValue: ${isAccessTokenValue}, isRefreshTokenValue: ${isRefreshTokenValue}`
+    );
+    if (!isRefreshTokenValue)
+      return res
+        .status(419)
+        .json({ ok: false, message: "Refresh 토큰 만료, 재로그인 필요" });
+    if (!isAccessTokenValue) {
+      // redis refreshToken 로드 실행
+      async function getData(refreshTokenValue) {
+        try {
+          const data = await redisClientRepository.getData(refreshTokenValue);
+          if (data) {
+            const { userId, nickname } = JSON.parse(data);
+            if (userId.length < 0 && !nickname.length < 0) {
+              // return Promise.reject({
+              //   errorMessage:
+              //     "Refresh Token의 정보가 서버에 존재하지 않습니다.",
+              // });
+              return res.status(419).json({
+                ok: false,
+                message: "Refresh 서버에 없음, 재로그인 필요",
+              });
+            } else {
+              return Promise.resolve({ userId, nickname });
+            }
+          } else {
+            return res.status(419).json({
+              ok: false,
+              message: "Refresh 서버에 없음, 재로그인 필요",
+            });
+          }
+        } catch (err) {
+          return res.status(419).json({
+            ok: false,
+            message: "Refresh 서버에 없음, 재로그인 필요",
+          });
+        }
+      }
+
+      const { userId, nickname } = await getData(refreshTokenValue);
+
+      // Access Token 새발급
+      const newAccessToken = jwt.createAccessToken(userId, nickname);
+      console.log("Access Token을 새롭게 발급하였습니다.");
+      res.locals.user = jwt.getAccessTokenPayload(newAccessToken);
+      res.cookie("accessToken", `Bearer ${newAccessToken}`);
+      res
+        .status(200)
+        .json({ accessToken: newAccessToken, refreshToken: refreshTokenValue });
+    }
+    res.locals.user = jwt.getAccessTokenPayload(accessTokenValue);
+    next();
+  } catch (error) {
+    return res
+      .status(401)
+      .json({ errorMessage: "전달된 쿠키에서 오류가 발생하였습니다." });
+  }
+};
+
+// 사용자 인증 미들웨어 - JWT 기존 방식
+/* 
+// const jwt = require("jsonwebtoken");
+const { Users } = require("../models");
 module.exports = async (req, res, next) => {
   const { authorization } = req.cookies;
-  // 쿠키를 받아올거다.
-  // name : authorization
-  // value : Bearer%20eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTY4MjQ4OTIwMX0.XTEqZJ83x6UuCpQj6x9NIqOrpjvq6gVoA1meTD1o4-4
 
-  // req.cookies 형태로 전달받을 수 있도록 하기 위해서는
-  // cookieParser를 전역 미들웨어에 등록을 해야지만 사용가능했었음
-  // 그러기 위해서는 app.js 에 cookie-parser 임포트와
-  // app.use(cookieParser())가 있어야함
-
-  // app.js에 cookie parser가 정상적으로 등록되있다면
-  // req.cookies를 사용가능함.
-  
   if (!authorization) {
     // authorization header is missing
     return res.status(401).json({ message: "로그인이 필요한 기능입니다." });
   }
 
   const [tokenType, token] = authorization.split(" ");
-  // cookie value에 Bearer afdafasfasf 적혀있는걸 구분해서 가져올거다.
 
-  // tokenType이 Bearer가 아닐 때
-  // 또는 token 이 비었을 때 Error 발생
-  // Error 발생
   if (tokenType !== "Bearer" || !token) {
-    return res.status(401).json({ errorMessage: "로그인이 필요한 기능입니다."});
+    return res
+      .status(401)
+      .json({ errorMessage: "로그인이 필요한 기능입니다." });
   }
 
-  // 그 다음으로는 token을 디코딩 해봐야함
-  // 디코딩 하기위해서는 jwt 라이브러리가 필요하기 떄문에
-  // 위에다가 const jwt = require('jsonwebtoken'); 추가
-  // 그리고 디코드가 쉴패했을 때 에러를 띄우기 위해 try..catch 구문 사용하는 것
   try {
-    // token을 디코드할거고, 키는 jwt생성할 때 사용하였던
-    // secret-key인 "customized_secret_key"을 사용
     const decodedToken = jwt.verify(token, "customized_secret_key");
-
-    // 디코드를 통해 복호화가 완료되었기 때문에 저기서 정보를 가져올 거다.
     const userId = decodedToken.userId;
-
-    // 그리고 실재로 유저 정보를 찾아야함
-    // Users 디비를 사용하려면 맨 위에
-    // const { Users } = require('../models'); 추가
-    // MongoDB과 다른 부분은 여기 where절 밖에 없음
-    const user = await Users.findOne({ where: { userId}});
-
-    // 만약 검색한 유저가 없다면 Error 발생
+    const user = await Users.findOne({ where: { userId } });
     if (!user) {
-      return res.status(401).json({ errorMessage: "로그인에 실패하였습니다."});
+      return res.status(401).json({ errorMessage: "로그인에 실패하였습니다." });
     }
-
-    // 모든 검증을 통과했다라면은
-    // res.locals.user에 user 정보를 모두 집어넣어라.
     res.locals.user = user;
-
-    // 그다음 next로 넘깁니다.
     next();
   } catch (error) {
-    return res.status(401).json({ errorMessage: "전달된 쿠키에서 오류가 발생하였습니다."});
-  };
+    return res
+      .status(401)
+      .json({ errorMessage: "전달된 쿠키에서 오류가 발생하였습니다." });
+  }
 };
+ */

@@ -4,8 +4,11 @@
   "description": "항해99 14기 20조 미니프로젝트",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon app.js"
+    "test": "NODE_ENV=test jest --forceExit",
+    "test:silent": "NODE_ENV=test jest --silent --forceExit",
+    "test:coverage": "NODE_ENV=test jest --coverage --forceExit",
+    "test:unit": "NODE_ENV=test jest __tests__/unit --forceExit",
+    "test:integration": "NODE_ENV=test jest __tests__/integration --forceExit"
   },
   "repository": {
     "type": "git",
@@ -20,13 +23,17 @@
   "homepage": "https://github.com/ksnx3684/No.20_MiniProject#readme",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.2.4",
+    "redis": "^4.6.6",
     "sequelize": "^6.31.1"
   },
   "devDependencies": {
+    "jest": "^29.5.0",
     "nodemon": "^2.0.22",
-    "sequelize-cli": "^6.6.0"
+    "sequelize-cli": "^6.6.0",
+    "supertest": "^6.3.3"
   }
 }

@@ -1,5 +1,8 @@
 const UsersService = require("../services/users.service.js");
 const errorWithCode = require("../utils/error.js");
+const RedisClientRepository = require("../utils/redis-util.js");
+const redisClientRepository = new RedisClientRepository();
+const jwt = require("../utils/jwt-util.js");
 
 class UsersController {
   usersService = new UsersService();
@@ -10,7 +13,7 @@ class UsersController {
     const { nickname } = req.body;
     // 2. 닉네임 중복 검사
     const getUser = await this.usersService.getUserWithNickname(nickname);
-    if (!getUser) {
+    if (getUser) {
       return res.status(200).send(true);
     } else {
       return res.status(412).send(false);
@@ -87,10 +90,29 @@ class UsersController {
     }
   };
 
-  // 로그인
+  // 로그인 - JWT 기존 방식
+  // login = async (req, res, next) => {
+  //   try {
+  //     // 1. 데이터 입력받기
+  //     const { nickname, password } = req.body;
+  //     // 2. 예외처리
+  //     // 2-1. 회원찾기 (닉네임)
+  //     const getUser = await this.usersService.getUserWithNickname(nickname);
+  //     if (!getUser || getUser.password !== password) {
+  //       throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
+  //     }
+  //     // 3. 로그인하기
+  //     const token = await this.usersService.login(nickname, password);
+  //     res.cookie("authorization", `Bearer ${token}`);
+  //     return res.status(200).json({ token });
+  //   } catch (err) {
+  //     err.failedApi = "로그인";
+  //     next(err);
+  //   }
+  // };
+
   login = async (req, res, next) => {
     try {
-      // 1. 데이터 입력받기
       const { nickname, password } = req.body;
       // 2. 예외처리
       // 2-1. 회원찾기 (닉네임)
@@ -98,13 +120,43 @@ class UsersController {
       if (!getUser || getUser.password !== password) {
         throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
       }
-      // 3. 로그인하기
-      const token = await this.usersService.login(nickname, password);
-      res.cookie("authorization", `Bearer ${token}`);
-      return res.status(200).json({ token });
+      // 토큰 생성
+      const accessToken = jwt.createAccessToken(
+        getUser.userId,
+        getUser.nickname
+      );
+      const refreshToken = jwt.createRefreshToken();
+
+      // redis 저장 준비
+      const key = refreshToken;
+      const value = JSON.stringify({
+        userId: getUser.userId,
+        nickname: getUser.nickname,
+      });
+
+      // REDIS 저장 실행
+      async function setData(key, value) {
+        try {
+          await redisClientRepository.setData(key, value).then(() => {
+            console.log("Data saved successfully!");
+          });
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      setData(key, value);
+
+      // 쿠키 생성
+      res.cookie("accessToken", `Bearer ${accessToken}`);
+      res.cookie("refreshToken", `Bearer ${refreshToken}`);
+      // 쿠키 생성 - (강의)
+      // res.cookie("authorization", `Bearer ${token}`); // jwt 기본 방식
+
+      return res.status(200).json({ accessToken, refreshToken });
     } catch (err) {
-      err.failedApi = "로그인";
-      next(err);
+      console.error(err);
+      return res.status(400).send("로그인 실패");
     }
   };
 
