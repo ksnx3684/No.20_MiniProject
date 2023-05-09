@@ -54,7 +54,7 @@ class PostsController {
       // 게시글 작성
       await this.postsService.createPost(userId, nickname, title, content);
 
-      return res.status(201);
+      return res.status(201).json({message: "게시글 작성에 성공하였습니다."});
     } catch (e) {
       e.failedApi = "게시글 작성";
       next(e);
@@ -71,7 +71,6 @@ class PostsController {
 
       return res.status(200).json({ post });
     } catch (e) {
-      console.log(e);
       e.failedApi = "게시글 상세 조회";
       next(e);
     }
@@ -102,14 +101,12 @@ class PostsController {
 
       await this.postsService.updatePost(_postId, title, content)
         .catch((e) => {
-          console.log(e);
           throw errorWithCode(400, "게시글 수정이 정상적으로 처리되지 않았습니다.");
         }
       );
 
       return res.status(200).json({message: "게시글 수정에 성공하였습니다."});
     } catch (e) {
-      console.log(e);
       e.failedApi = "게시글 수정";
       next(e);
     }
@@ -129,14 +126,12 @@ class PostsController {
 
       await this.postsService.deletePost(nickname, _postId)
         .catch((e) => {
-          console.log(e);
           throw errorWithCode(400, "게시글이 정상적으로 삭제되지 않았습니다.");
         }
       );
 
       return res.status(200).json({message: "게시글 삭제에 성공하였습니다."});
     } catch (e) {
-      console.log(e);
       e.failedApi = "게시글 삭제";
       next(e);
     }

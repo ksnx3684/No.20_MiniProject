@@ -25,7 +25,7 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.UserId,
+        UserId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
@@ -54,7 +54,7 @@ class PostsService {
     return posts.map((post) => {
       return {
         postId: post.postId,
-        userId: post.UserId,
+        UserId: post.UserId,
         nickname: post.nickname,
         title: post.title,
         createdAt: post.createdAt,
