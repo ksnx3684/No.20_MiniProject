@@ -28,7 +28,7 @@ module.exports = {
       },
       content: {
         allowNull: false,
-        type: Sequelize.TEXT,
+        type: Sequelize.JSON,
       },
       likes: {
         allowNull: false,
