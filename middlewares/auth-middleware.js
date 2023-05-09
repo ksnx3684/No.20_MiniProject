@@ -5,7 +5,7 @@ const jwt = require("../utils/jwt-util.js");
 // 사용자 인증 미들웨어 - Redis 방식
 module.exports = async (req, res, next) => {
   // 쿠키에 있는 토큰 가져오기
-  const { accesstoken, refreshtoken } = req.cookies;
+  const { accesstoken, refreshtoken } = req.headers;
   console.log(req.cookies);
 
   // accesstoken, refreshtoken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
