@@ -1,4 +1,4 @@
-const PostsController = require("../../controllers/posts.controller.js");
+const PostsController = require("../../../controllers/posts.controller.js");
 
 let mockPostService = {
   findAllPosts: jest.fn(),
@@ -314,10 +314,12 @@ describe('Layered Architecture Pattern Posts Controller Unit Test', () => {
   //   });
 
   //   await postsController.updatePost(mockRequest, mockResponse, next);
-  //   expect(mockPostService.getOnePost).toHaveBeenCalledTimes(1);
   //   expect(mockPostService.updatePost).toHaveBeenCalledTimes(1);
-
-
+  //   expect(mockPostService.updatePost).toHaveBeenCalledWith(
+  //     mockRequest.params._postId,
+  //     updatePostBodyParams.title,
+  //     updatePostBodyParams.content,
+  //   );
   // });
 
 
@@ -356,8 +358,6 @@ describe('Layered Architecture Pattern Posts Controller Unit Test', () => {
   //     },
   //   ];
 
-  //   const deletePostMessage = "게시글 삭제 권한이 존재하지 않습니다.";
-
   //   mockPostService.getOnePost = jest.fn(() => {
   //     return getOnePostReturnValue;
   //   })
@@ -366,13 +366,7 @@ describe('Layered Architecture Pattern Posts Controller Unit Test', () => {
   //   })
 
   //   await postsController.deletePost(mockRequest, mockResponse, next);
-  //   expect(mockPostService.getOnePost).toHaveBeenCalledTimes(1);
   //   expect(mockPostService.deletePost).toHaveBeenCalledTimes(1);
-
-  //   expect(mockPostService.deletePost).toHaveBeenCalledWith(
-  //     mockRequest.params.postId,
-  //     mockResponse.locals.user.user_id
-  //   );
 
   // });
 
