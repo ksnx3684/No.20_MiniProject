@@ -26,9 +26,9 @@ class RedisClientRepository {
   };
 
   setData = async (key, value) => {
-    await this.initialize();
+    await this.initialize(); // 한번만 할 수있도록 수정 필요
     await this.redisClient.v4.set(key, value);
-    this.redisClient.quit(); // Redis 연결 종료
+    this.redisClient.quit(); // Redis 연결 종료  // await 추가 테스트 필요
   };
 
   getData = async (key) => {

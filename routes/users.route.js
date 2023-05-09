@@ -5,7 +5,7 @@ const authMiddleware = require("../middlewares/auth-middleware.js");
 const UsersController = require("../controllers/users.controller.js");
 const usersController = new UsersController();
 
-router.get("/isNickname", usersController.isNickname); // 닉네임 중복검사
+router.post("/isNickname", usersController.isNickname); // 닉네임 중복검사
 router.post("/signup", usersController.signup); // 회원가입
 router.delete("/withdrawal", authMiddleware, usersController.withdrawal); // 회원탈퇴
 router.post("/login", usersController.login); // 로그인
