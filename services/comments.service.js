@@ -31,7 +31,6 @@ class CommentsService {
   };
 
   updateComment = async (comment, _postId, nickname, _commentId) => {
-    console.log(1);
     const check = await this.authorization(_commentId, nickname, _postId);
     console.log(check);
     if (check !== true)
@@ -43,6 +42,7 @@ class CommentsService {
       nickname
     );
   };
+  
   deleteComment = async (_commentId, nickname, _postId) => {
     const check = await this.authorization(_commentId, nickname, _postId);
     if (check !== true)
@@ -52,18 +52,13 @@ class CommentsService {
   };
 
   authorization = async (_commentId, nickname, _postId) => {
-    console.log(2);
     const existPost = await this.postsService.getOnePost(_postId, false);
-    console.log(3);
 
     if (!existPost) throw errorWithCode(404, "게시글이 존재하지 않습니다");
-    console.log(4);
 
     const existComment = await this.commentsRepository.oneComment(_commentId);
-    console.log(5);
 
     if (!existComment) throw errorWithCode(404, "댓글이 존재하지 않습니다");
-    console.log(6);
 
     return existComment.nickname === nickname;
   };
