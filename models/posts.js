@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       content: {
         allowNull: false,
-        type: DataTypes.TEXT,
+        type: DataTypes.JSON,
       },
       likes: {
         allowNull: false,
