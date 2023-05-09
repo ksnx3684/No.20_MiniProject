@@ -75,39 +75,28 @@ class PostsService {
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
 
-    if (!prevPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: "",
-        prevPostTitle: "",
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title,
-        postComment: post.Comments,
-      };
-    else if (!nextPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: "",
-        nextPostTitle: "",
-        postComment: post.Comments,
-      };
-    else
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title,
-        postComment: post.Comments,
-      };
+    const postWithDetail = {
+      nickname: post.nickname,
+      title: post.title,
+      content: post.content,
+      prevPostId: "",
+      prevPostTitle: "",
+      nextPostId: "",
+      nextPostTitle: "",
+      postComment: post.Comments,
+    };
+
+    if (prevPost) {
+      postWithDetail.prevPostId = prevPost.postId;
+      postWithDetail.prevPostTitle = prevPost.title;
+    }
+
+    if (nextPost) {
+      postWithDetail.nextPostId = nextPost.postId;
+      postWithDetail.nextPostTitle = nextPost.title;
+    }
+
+    return postWithDetail;
   };
 
   updatePost = async (_postId, title, content) => {
