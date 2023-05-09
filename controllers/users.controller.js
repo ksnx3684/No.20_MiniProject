@@ -121,14 +121,14 @@ class UsersController {
         throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
       }
       // 토큰 생성
-      const accessToken = jwt.createAccessToken(
+      const accesstoken = jwt.createaccesstoken(
         getUser.userId,
         getUser.nickname
       );
-      const refreshToken = jwt.createRefreshToken();
+      const refreshtoken = jwt.createrefreshtoken();
 
       // redis 저장 준비
-      const key = refreshToken;
+      const key = refreshtoken;
       const value = JSON.stringify({
         userId: getUser.userId,
         nickname: getUser.nickname,
@@ -148,13 +148,13 @@ class UsersController {
       setData(key, value);
 
       // 쿠키 생성
-      res.cookie("accessToken", `Bearer ${accessToken}`);
-      res.cookie("refreshToken", `Bearer ${refreshToken}`);
+      res.cookie("accesstoken", `Bearer ${accesstoken}`);
+      res.cookie("refreshtoken", `Bearer ${refreshtoken}`);
 
       // 쿠키 생성 - (강의)
       // res.cookie("authorization", `Bearer ${token}`); // jwt 기본 방식
 
-      return res.status(200).json({ accessToken, refreshToken });
+      return res.status(200).json({ accesstoken, refreshtoken });
     } catch (err) {
       console.error(err);
       return res.status(400).send(false);
