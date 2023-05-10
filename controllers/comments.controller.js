@@ -1,5 +1,6 @@
 const CommentsService = require("../services/comments.service");
 const errorWithCode = require("../utils/error");
+
 class CommentsController {
   commentsService = new CommentsService();
 
@@ -13,8 +14,9 @@ class CommentsController {
       const { _postId } = req.params; // saro       @love/25
       const { nickname, userId } = res.locals.user;
 
-      if (!comment || comment === "" || typeof comment !== "string")
+      if (!comment || comment === "" || typeof comment !== "string") {
         throw errorWithCode(412, "댓글 형식이 올바르지 않습니다.");
+      }
 
       await this.commentsService.createComment(
         comment,
@@ -24,9 +26,9 @@ class CommentsController {
       );
 
       return res.status(201).end();
-    } catch (err) {
-      err.failedApi = "댓글생성";
-      next(err);
+    } catch (e) {
+      e.failedApi = "댓글생성";
+      next(e);
     }
   };
 
@@ -35,6 +37,7 @@ class CommentsController {
       if (Object.keys(req.body).length !== 1) {
         throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
       }
+
       const { comment } = req.body;
       const { _postId, _commentId } = req.params;
       const { nickname } = res.locals.user;
@@ -49,10 +52,11 @@ class CommentsController {
         nickname,
         _commentId
       );
+
       return res.status(200).end();
-    } catch (err) {
-      err.failedApi = "댓글수정";
-      next(err);
+    } catch (e) {
+      e.failedApi = "댓글수정";
+      next(e);
     }
   };
 
@@ -62,10 +66,11 @@ class CommentsController {
       const { nickname } = res.locals.user;
 
       await this.commentsService.deleteComment(_commentId, nickname, _postId);
+
       return res.status(200).end();
-    } catch (err) {
-      err.failedApi = "댓글삭제";
-      next(err);
+    } catch (e) {
+      e.failedApi = "댓글삭제";
+      next(e);
     }
   };
 }

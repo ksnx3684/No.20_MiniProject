@@ -19,7 +19,7 @@ class PostsRepository {
   };
 
   getOnePost = async (_postId) => {
-    const post = await this.model.findOne({
+    return await this.model.findOne({
       where: { postId: _postId, status: true },
       attributes: [
         "postId",
@@ -45,11 +45,10 @@ class PostsRepository {
         },
       ],
     });
-    return post;
   };
 
   getPrevPost = async (_postId) => {
-    const post = await this.model.findOne({
+    return await this.model.findOne({
       where: {
         postId: {
           [Op.lt]: _postId,
@@ -58,11 +57,10 @@ class PostsRepository {
       },
       order: [["postId", "DESC"]],
     });
-    return post;
   };
 
   getNextPost = async (_postId) => {
-    const post = await this.model.findOne({
+    return await this.model.findOne({
       where: {
         postId: {
           [Op.gt]: _postId,
@@ -70,23 +68,20 @@ class PostsRepository {
         status: true,
       },
     });
-    return post;
   };
 
   updatePost = async (_postId, title, content) => {
-    const post = await this.model.update(
+    return await this.model.update(
       { title, content },
       { where: { postId: _postId } }
     );
-    return post;
   };
 
   deletePost = async (nickname, _postId) => {
-    const post = await this.model.update(
+    return await this.model.update(
       { status: false },
       { where: { nickname, postId: _postId } }
     );
-    return post;
   };
 }
 

@@ -2,29 +2,29 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 const SECRET_KEY = process.env.SECRET_KEY; // env에서 SECRET_KEY 불러오기
-const ACCESS_TOKEN_EXPIRE_TIME = "10h"; // accesstoken 소멸시간 설정
-const REFRESH_TOKEN_EXPIRE_TIME = "14d"; // refreshtoken 소멸시간 설정
+const ACCESS_TOKEN_EXPIRE_TIME = "10h"; // accessToken 소멸시간 설정
+const REFRESH_TOKEN_EXPIRE_TIME = "14d"; // refreshToken 소멸시간 설정
 
 module.exports = {
   // Access Token 발급
-  createaccesstoken: (userId, nickname) => {
-    const accesstoken = jwt.sign({ userId, nickname }, SECRET_KEY, {
+  createAccessToken: (userId, nickname) => {
+    const accessToken = jwt.sign({ userId, nickname }, SECRET_KEY, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
     });
-    return accesstoken;
+    return accessToken;
   },
   // Refresh Token 발급
-  createrefreshtoken: () => {
-    const refreshtoken = jwt.sign({}, SECRET_KEY, {
+  createRefreshToken: () => {
+    const refreshToken = jwt.sign({}, SECRET_KEY, {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
     });
-    return refreshtoken;
+    return refreshToken;
   },
   // Token Type 검증
   validateTokenType: (tokenType) => {
     try {
       return tokenType === "Bearer" ? true : false;
-    } catch (error) {
+    } catch (e) {
       return false;
     }
   },
@@ -33,17 +33,18 @@ module.exports = {
     try {
       jwt.verify(tokenValue, SECRET_KEY); // JWT를 검증합니다.
       return true;
-    } catch (err) {
+    } catch (e) {
       return false;
     }
   },
   // Access Token > Payload 가져오기
-  getaccesstokenPayload: (accesstokenValue) => {
+  getAccessTokenPayload: (accessTokenValue) => {
     try {
       // JWT에서 Payload를 가져옵니다.
-      if (jwt.verify(accesstokenValue, SECRET_KEY))
-        return jwt.decode(accesstokenValue);
-    } catch (error) {
+      if (jwt.verify(accessTokenValue, SECRET_KEY)) {
+        return jwt.decode(accessTokenValue);
+      }
+    } catch (e) {
       return null;
     }
   },

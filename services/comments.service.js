@@ -1,8 +1,9 @@
 const { Comments, Posts } = require("../models");
 const CommentsRepository = require("../repositories/comments.repository");
-const PostsService = require("../services/posts.service");
+const PostsRepository = require("../repositories/posts.repository");
+
 class CommentsService {
-  postsService = new PostsService(Posts);
+  postsRepository = new PostsRepository(Posts, Comments);
   commentsRepository = new CommentsRepository(Comments);
 
   allComments = async (_postId) => {
@@ -32,33 +33,32 @@ class CommentsService {
 
   updateComment = async (comment, _postId, nickname, _commentId) => {
     const check = await this.authorization(_commentId, nickname, _postId);
-    console.log(check);
-    if (check !== true)
+    if (check !== true) {
       throw errorWithCode(404, "댓글의 수정 권한이 존재하지 않습니다.");
+    }
 
-    const updateComment = await this.commentsRepository.updateComment(
-      comment,
-      _commentId,
-      nickname
-    );
+    await this.commentsRepository.updateComment(comment, _commentId, nickname);
   };
-  
+
   deleteComment = async (_commentId, nickname, _postId) => {
     const check = await this.authorization(_commentId, nickname, _postId);
-    if (check !== true)
+    if (check !== true) {
       throw errorWithCode(404, "댓글의 삭제 권한이 존재하지 않습니다.");
+    }
 
     await this.commentsRepository.deleteComment(nickname, _commentId);
   };
 
   authorization = async (_commentId, nickname, _postId) => {
-    const existPost = await this.postsService.getOnePost(_postId, false);
-
-    if (!existPost) throw errorWithCode(404, "게시글이 존재하지 않습니다");
+    const existPost = await this.postsRepository.getOnePost(_postId);
+    if (!existPost) {
+      throw errorWithCode(404, "게시글이 존재하지 않습니다");
+    }
 
     const existComment = await this.commentsRepository.oneComment(_commentId);
-
-    if (!existComment) throw errorWithCode(404, "댓글이 존재하지 않습니다");
+    if (!existComment) {
+      throw errorWithCode(404, "댓글이 존재하지 않습니다");
+    }
 
     return existComment.nickname === nickname;
   };

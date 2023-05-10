@@ -17,17 +17,23 @@ class UsersRepository {
   getUserWithUserId = async (userId) => {
     return await this.usersModel.findOne({ where: { userId } });
   };
-  
+
   // 회원정보 등록
   addProfile = async (userId, userImage, email, github, description) => {
-    return await this.userInfoModel.create({ UserId:userId, userImage, email, github, description });
+    return await this.userInfoModel.create({
+      UserId: userId,
+      userImage,
+      email,
+      github,
+      description,
+    });
   };
-  
+
   // 회원정보 조회
   getProfile = async (userId) => {
     return await this.userInfoModel.findOne({
-      attributes: [ "userImage", "email", "github", "description" ],
-      where: { UserId:userId }
+      attributes: ["userImage", "email", "github", "description"],
+      where: { UserId: userId },
     });
   };
 
@@ -35,13 +41,13 @@ class UsersRepository {
   editProfile = async (userId, userImage, email, github, description) => {
     return await this.userInfoModel.update(
       { userImage, email, github, description },
-      { where: { UserId : userId }}
+      { where: { UserId: userId } }
     );
   };
   // 회원 탈퇴
-  withdrawal = async ( userId ) => {
-    await this.usersModel.destroy({ where: { userId }});
+  withdrawal = async (userId) => {
+    await this.usersModel.destroy({ where: { userId } });
   };
-};
+}
 
 module.exports = UsersRepository;
