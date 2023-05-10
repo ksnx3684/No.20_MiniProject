@@ -14,7 +14,7 @@ class UsersController {
     // 2. 닉네임 중복 검사
     const getUser = await this.usersService.getUserWithNickname(nickname);
     if (getUser) {
-      return res.status(200).send(true);
+      return res.status(200).end();
     } else {
       return res.status(412).send(false);
     }
@@ -82,7 +82,7 @@ class UsersController {
       );
 
       if (signupResult && addProfileResult) {
-        return res.status(200).send(true);
+        return res.status(200).end();
       }
     } catch (err) {
       err.failedApi = "회원가입";
@@ -167,7 +167,7 @@ class UsersController {
       res.locals.user;
       res.clearCookie("authorization"); // 이 방식도 가능하고,
       // res.cookie('authorization', '', { maxAge: -1 }); // 이 방식도 가능
-      return res.status(200).send(true);
+      return res.status(200).end();
     } catch (err) {
       err.failedApi = "로그아웃";
       next(err);
@@ -215,7 +215,7 @@ class UsersController {
         github,
         description
       );
-      return res.status(200).send(true);
+      return res.status(200).end();
     } catch (err) {
       console.error(err);
       err.failedApi = "회원정보 수정";
@@ -228,7 +228,7 @@ class UsersController {
     try {
       const { userId } = res.locals.user;
       await this.usersService.withdrawal(userId);
-      return res.status(200).send(true);
+      return res.status(200).end();
     } catch (err) {
       err.failedApi = "회원 탈퇴";
       next(err);
