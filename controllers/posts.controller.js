@@ -88,13 +88,6 @@ class PostsController {
       const { _postId } = req.params;
       const { title, content, tag } = req.body;
       const { nickname } = res.locals.user;
-      const postDetail = false;
-
-      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
-
-      if (checkPost.nickname !== nickname) {
-        throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
-      }
 
       if (!title || title === "") {
         throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
@@ -104,7 +97,7 @@ class PostsController {
         throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
       }
 
-      await this.postsService.updatePost(_postId, title, content, tag);
+      await this.postsService.updatePost(_postId, title, content, tag, nickname);
 
       return res.status(200).end();
     } catch (e) {
@@ -118,13 +111,6 @@ class PostsController {
     try {
       const { _postId } = req.params;
       const { nickname } = res.locals.user;
-      const postDetail = false;
-
-      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
-
-      if (!nickname || checkPost.nickname !== nickname) {
-        throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
-      }
 
       await this.postsService.deletePost(nickname, _postId);
 
