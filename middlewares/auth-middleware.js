@@ -5,34 +5,35 @@ const jwt = require("../utils/jwt-util.js");
 // 사용자 인증 미들웨어 - Redis 방식
 module.exports = async (req, res, next) => {
   // 쿠키에 있는 토큰 가져오기
-  const { accesstoken, refreshtoken } = req.headers;
-  console.log(req.cookies);
+  const { accessToken, refreshToken } = req.cookies;
+  console.log(req.headers);
 
-  // accesstoken, refreshtoken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
-  const isaccesstoken = accesstoken ? true : false;
-  const isrefreshtoken = refreshtoken ? true : false;
+  // accessToken, refreshToken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
+  const isAccessToken = accessToken ? true : false;
+  const isRefreshToken = refreshToken ? true : false;
   console.log(
-    `isaccesstoken: ${isaccesstoken}, isrefreshtoken: ${isrefreshtoken}`
+    `isAccessToken: ${isAccessToken}, isRefreshToken: ${isRefreshToken}`
   );
-  if (!isaccesstoken || !isrefreshtoken)
+  if (!isAccessToken || !isRefreshToken) {
     return res
       .status(419)
       .json({ ok: false, message: "쿠키에 토큰 없음, 재로그인 필요" });
+  }
 
-  // accesstoken, refreshtoken 토큰 타입, 토큰 값 분할 할당
-  const [accesstokenType, accesstokenValue] = accesstoken.split(" ");
-  const [refreshtokenType, refreshtokenValue] = refreshtoken.split(" ");
+  // accessToken, refreshToken 토큰 타입, 토큰 값 분할 할당
+  const [accessTokenType, accessTokenValue] = accessToken.split(" ");
+  const [refreshTokenType, refreshTokenValue] = refreshToken.split(" ");
   console.log(
-    `accesstokenType: ${accesstokenType}, refreshtokenType: ${refreshtokenType}`
+    `accessTokenType: ${accessTokenType}, refreshTokenType: ${refreshTokenType}`
   );
 
-  // accesstoken, refreshtoken 토큰 타입 확인 : (falsy) 타입이 정상적이지 않습니다.
-  const isaccesstokenType = jwt.validateTokenType(accesstokenType);
-  const isrefreshtokenType = jwt.validateTokenType(refreshtokenType);
+  // accessToken, refreshToken 토큰 타입 확인 : (falsy) 타입이 정상적이지 않습니다.
+  const isAccessTokenType = jwt.validateTokenType(accessTokenType);
+  const isRefreshTokenType = jwt.validateTokenType(refreshTokenType);
   console.log(
-    `isaccesstokenType: ${isaccesstokenType}, isrefreshtokenType: ${isrefreshtokenType}`
+    `isAccessTokenType: ${isAccessTokenType}, isRefreshTokenType: ${isRefreshTokenType}`
   );
-  if (!isaccesstokenType || !isrefreshtokenType) {
+  if (!isAccessTokenType || !isRefreshTokenType) {
     return res
       .status(419)
       .json({ ok: false, message: "타입 불량, 재로그인 필요" });
@@ -40,20 +41,23 @@ module.exports = async (req, res, next) => {
 
   try {
     // 토큰 값 JWT 검증 : (falsy) 토큰이 만료되었습니다.
-    const isaccesstokenValue = jwt.validateTokenValue(accesstokenValue);
-    const isrefreshtokenValue = jwt.validateTokenValue(refreshtokenValue);
+    const isAccessTokenValue = jwt.validateTokenValue(accessTokenValue);
+    const isRefreshTokenValue = jwt.validateTokenValue(refreshTokenValue);
     console.log(
-      `isaccesstokenValue: ${isaccesstokenValue}, isrefreshtokenValue: ${isrefreshtokenValue}`
+      `isAccessTokenValue: ${isAccessTokenValue}, isRefreshTokenValue: ${isRefreshTokenValue}`
     );
-    if (!isrefreshtokenValue)
+
+    if (!isRefreshTokenValue) {
       return res
         .status(419)
         .json({ ok: false, message: "Refresh 토큰 만료, 재로그인 필요" });
-    if (!isaccesstokenValue) {
-      // redis refreshtoken 로드 실행
-      async function getData(refreshtokenValue) {
+    }
+
+    if (!isAccessTokenValue) {
+      // redis refreshToken 로드 실행
+      async function getData(refreshTokenValue) {
         try {
-          const data = await redisClientRepository.getData(refreshtokenValue);
+          const data = await redisClientRepository.getData(refreshTokenValue);
           if (data) {
             const { userId, nickname } = JSON.parse(data);
             if (userId.length < 0 && !nickname.length < 0) {
@@ -74,7 +78,7 @@ module.exports = async (req, res, next) => {
               message: "Refresh 서버에 없음, 재로그인 필요",
             });
           }
-        } catch (err) {
+        } catch (e) {
           return res.status(419).json({
             ok: false,
             message: "Refresh 서버에 없음, 재로그인 필요",
@@ -82,20 +86,21 @@ module.exports = async (req, res, next) => {
         }
       }
 
-      const { userId, nickname } = await getData(refreshtokenValue);
+      const { userId, nickname } = await getData(refreshTokenValue);
 
       // Access Token 새발급
-      const newaccesstoken = jwt.createaccesstoken(userId, nickname);
+      const newAccessToken = jwt.createAccessToken(userId, nickname);
       console.log("Access Token을 새롭게 발급하였습니다.");
-      res.locals.user = jwt.getaccesstokenPayload(newaccesstoken);
-      res.cookie("accesstoken", `Bearer ${newaccesstoken}`);
+      res.locals.user = jwt.getAccessTokenPayload(newAccessToken);
+      res.cookie("accessToken", `Bearer ${newAccessToken}`);
       res
         .status(200)
-        .json({ accesstoken: newaccesstoken, refreshtoken: refreshtokenValue });
+        .json({ accessToken: newAccessToken, refreshToken: refreshTokenValue });
     }
-    res.locals.user = jwt.getaccesstokenPayload(accesstokenValue);
+    res.locals.user = jwt.getAccessTokenPayload(accessTokenValue);
     next();
-  } catch (error) {
+  } catch (e) {
+    console.log(e);
     return res
       .status(401)
       .json({ errorMessage: "전달된 쿠키에서 오류가 발생하였습니다." });
@@ -131,7 +136,7 @@ module.exports = async (req, res, next) => {
     }
     res.locals.user = user;
     next();
-  } catch (error) {
+  } catch (e) {
     return res
       .status(401)
       .json({ errorMessage: "전달된 쿠키에서 오류가 발생하였습니다." });

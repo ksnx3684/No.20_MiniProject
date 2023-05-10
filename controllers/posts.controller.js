@@ -1,5 +1,4 @@
 const errorWithCode = require("../utils/error");
-
 const PostsService = require("../services/posts.service");
 
 class PostsController {
@@ -20,6 +19,8 @@ class PostsController {
   getUserPosts = async (req, res, next) => {
     try {
       const { _nickname } = req.params;
+      // _nickname이 number 타입이면 nickname의 게시글 조회가 아닌 게시글 id 조회이므로 다음 미들웨어로 넘김
+      // (api/posts/:_nickname -> api/posts/:_postId)
       if (parseInt(_nickname) === Number(_nickname)) {
         return next();
       }
@@ -46,6 +47,7 @@ class PostsController {
       if (!title || title === "") {
         throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
       }
+
       if (!content || content === "") {
         throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
       }
@@ -53,7 +55,7 @@ class PostsController {
       // 게시글 작성
       await this.postsService.createPost(userId, nickname, title, content);
 
-      return res.status(201).json({message: "게시글 작성에 성공하였습니다."});
+      return res.status(201).end();
     } catch (e) {
       e.failedApi = "게시글 작성";
       next(e);
@@ -64,9 +66,8 @@ class PostsController {
   getOnePost = async (req, res, next) => {
     try {
       const { _postId } = req.params;
-      const postDetail = true;
 
-      const post = await this.postsService.getOnePost(_postId, postDetail);
+      const post = await this.postsService.getOnePost(_postId, true);
 
       return res.status(200).json({ post });
     } catch (e) {
@@ -89,22 +90,21 @@ class PostsController {
 
       const checkPost = await this.postsService.getOnePost(_postId, postDetail);
 
-      if (checkPost.nickname !== nickname)
+      if (checkPost.nickname !== nickname) {
         throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
+      }
 
-      if (!title || title === "")
+      if (!title || title === "") {
         throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
+      }
 
-      if (!content || content === "")
+      if (!content || content === "") {
         throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
+      }
 
-      await this.postsService.updatePost(_postId, title, content)
-        .catch((e) => {
-          throw errorWithCode(400, "게시글 수정이 정상적으로 처리되지 않았습니다.");
-        }
-      );
+      await this.postsService.updatePost(_postId, title, content);
 
-      return res.status(200).json({message: "게시글 수정에 성공하였습니다."});
+      return res.status(200).end();
     } catch (e) {
       e.failedApi = "게시글 수정";
       next(e);
@@ -120,16 +120,13 @@ class PostsController {
 
       const checkPost = await this.postsService.getOnePost(_postId, postDetail);
 
-      if (!nickname || checkPost.nickname !== nickname)
+      if (!nickname || checkPost.nickname !== nickname) {
         throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
+      }
 
-      await this.postsService.deletePost(nickname, _postId)
-        .catch((e) => {
-          throw errorWithCode(400, "게시글이 정상적으로 삭제되지 않았습니다.");
-        }
-      );
+      await this.postsService.deletePost(nickname, _postId);
 
-      return res.status(200).json({ message: "게시글 삭제에 성공하였습니다." });
+      return res.status(200).end();
     } catch (e) {
       e.failedApi = "게시글 삭제";
       next(e);

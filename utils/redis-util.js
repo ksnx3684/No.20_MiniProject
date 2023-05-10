@@ -22,20 +22,21 @@ class RedisClientRepository {
     this.redisClient.on("error", (err) => {
       console.error("Redis Client Error", err);
     });
-    if (!this.redisConnected) this.redisClient.connect().then(); // redis v4 연결 (비동기)
+    if (!this.redisConnected) {
+      this.redisClient.connect().then(); // redis v4 연결 (비동기)
+    }
   };
 
   setData = async (key, value) => {
     await this.initialize(); // 한번만 할 수있도록 수정 필요
     await this.redisClient.v4.set(key, value);
-    this.redisClient.quit(); // Redis 연결 종료  // await 추가 테스트 필요
+    // this.redisClient.quit(); // Redis 연결 종료  // await 추가 테스트 필요
   };
 
   getData = async (key) => {
     await this.initialize();
-    const getDatas = await this.redisClient.v4.get(key);
-    this.redisClient.quit(); // Redis 연결 종료
-    return getDatas;
+    return await this.redisClient.v4.get(key);
+    // this.redisClient.quit(); // Redis 연결 종료
   };
 
   delData = async (key) => {

@@ -43,6 +43,7 @@ class PostsService {
     if (!posts.length) {
       throw errorWithCode(404, "게시글이 존재하지 않습니다.");
     }
+
     // 게시글 갯수를 20개로 제한
     if (posts.length > 20) {
       posts.length = 20;
@@ -66,11 +67,15 @@ class PostsService {
     await this.postsRepository.createPost(userId, nickname, title, content);
   };
 
-  getOnePost = async (_postId, postDetail) => {
+  getOnePost = async (_postId, flag) => {
     const post = await this.postsRepository.getOnePost(_postId);
-    if (!post) throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+    if (!post) {
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+    }
 
-    if (!postDetail) return post;
+    if (!flag) {
+      return post;
+    }
 
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
@@ -100,13 +105,11 @@ class PostsService {
   };
 
   updatePost = async (_postId, title, content) => {
-    const post = await this.postsRepository.updatePost(_postId, title, content);
-    return post;
+    return await this.postsRepository.updatePost(_postId, title, content);
   };
 
   deletePost = async (nickname, _postId) => {
-    const post = await this.postsRepository.deletePost(nickname, _postId);
-    return post;
+    return await this.postsRepository.deletePost(nickname, _postId);
   };
 }
 
