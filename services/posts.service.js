@@ -89,6 +89,7 @@ class PostsService {
       nickname: post.nickname,
       title: post.title,
       content: post.content,
+      createdAt: post.createdAt,
       prevPostId: "",
       prevPostTitle: "",
       nextPostId: "",
