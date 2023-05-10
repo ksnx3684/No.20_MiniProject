@@ -1,19 +1,25 @@
-const RedisClientRepository = require("../utils/redis-util.js");
-const redisClientRepository = new RedisClientRepository();
+const redis = require("redis");
+
+const RedisClientRepository = require("../repositories/redis.repository.js");
 const jwt = require("../utils/jwt-util.js");
+
+const redisClientRepository = new RedisClientRepository(redis);
 
 // 사용자 인증 미들웨어 - Redis 방식
 module.exports = async (req, res, next) => {
   // 쿠키에 있는 토큰 가져오기
   const { accessToken, refreshToken } = req.cookies;
-  console.log(req.headers);
+
+  // console.log(req.headers);
 
   // accessToken, refreshToken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
   const isAccessToken = accessToken ? true : false;
   const isRefreshToken = refreshToken ? true : false;
-  console.log(
-    `isAccessToken: ${isAccessToken}, isRefreshToken: ${isRefreshToken}`
-  );
+
+  // console.log(
+  //   `isAccessToken: ${isAccessToken}, isRefreshToken: ${isRefreshToken}`
+  // );
+
   if (!isAccessToken || !isRefreshToken) {
     return res
       .status(419)
@@ -23,16 +29,19 @@ module.exports = async (req, res, next) => {
   // accessToken, refreshToken 토큰 타입, 토큰 값 분할 할당
   const [accessTokenType, accessTokenValue] = accessToken.split(" ");
   const [refreshTokenType, refreshTokenValue] = refreshToken.split(" ");
-  console.log(
-    `accessTokenType: ${accessTokenType}, refreshTokenType: ${refreshTokenType}`
-  );
+
+  // console.log(
+  //   `accessTokenType: ${accessTokenType}, refreshTokenType: ${refreshTokenType}`
+  // );
 
   // accessToken, refreshToken 토큰 타입 확인 : (falsy) 타입이 정상적이지 않습니다.
   const isAccessTokenType = jwt.validateTokenType(accessTokenType);
   const isRefreshTokenType = jwt.validateTokenType(refreshTokenType);
-  console.log(
-    `isAccessTokenType: ${isAccessTokenType}, isRefreshTokenType: ${isRefreshTokenType}`
-  );
+
+  // console.log(
+  //   `isAccessTokenType: ${isAccessTokenType}, isRefreshTokenType: ${isRefreshTokenType}`
+  // );
+
   if (!isAccessTokenType || !isRefreshTokenType) {
     return res
       .status(419)
@@ -43,9 +52,10 @@ module.exports = async (req, res, next) => {
     // 토큰 값 JWT 검증 : (falsy) 토큰이 만료되었습니다.
     const isAccessTokenValue = jwt.validateTokenValue(accessTokenValue);
     const isRefreshTokenValue = jwt.validateTokenValue(refreshTokenValue);
-    console.log(
-      `isAccessTokenValue: ${isAccessTokenValue}, isRefreshTokenValue: ${isRefreshTokenValue}`
-    );
+
+    // console.log(
+    //   `isAccessTokenValue: ${isAccessTokenValue}, isRefreshTokenValue: ${isRefreshTokenValue}`
+    // );
 
     if (!isRefreshTokenValue) {
       return res
@@ -90,7 +100,9 @@ module.exports = async (req, res, next) => {
 
       // Access Token 새발급
       const newAccessToken = jwt.createAccessToken(userId, nickname);
-      console.log("Access Token을 새롭게 발급하였습니다.");
+
+      // console.log("Access Token을 새롭게 발급하였습니다.");
+
       res.locals.user = jwt.getAccessTokenPayload(newAccessToken);
       res.cookie("accessToken", `Bearer ${newAccessToken}`);
       res

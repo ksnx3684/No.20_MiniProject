@@ -13,11 +13,6 @@ class UsersRepository {
     return await this.usersModel.findOne({ where: { nickname } });
   };
 
-  // 회원찾기 with userId
-  getUserWithUserId = async (userId) => {
-    return await this.usersModel.findOne({ where: { userId } });
-  };
-
   // 회원정보 등록
   addProfile = async (userId, userImage, email, github, description) => {
     return await this.userInfoModel.create({

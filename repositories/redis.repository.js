@@ -1,18 +1,26 @@
+require("dotenv").config();
+
 // Redis를 위한 유틸 함수 작성
 // Redis에 Refresh Token을 저장할 것이기 때문에, 미리 Redis를 셋팅
 
-const redis = require("redis");
-require("dotenv").config();
-
 // Rdeis 클래스 선언
 class RedisClientRepository {
-  constructor() {
+  constructor(redis) {
     this.redisClient = redis.createClient({
       url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
       legacyMode: true,
     });
     this.redisConnected = false;
   }
+  // constructor(redis) {
+  //   console.log(redis);
+  //   this.redis = redis;
+  //   this.redisClient = this.redis.createClient({
+  //     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
+  //     legacyMode: true,
+  //   });
+  //   this.redisConnected = false;
+  // }
 
   initialize = async () => {
     this.redisClient.on("connect", () => {
