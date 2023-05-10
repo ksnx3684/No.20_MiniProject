@@ -86,9 +86,8 @@ class PostsController {
       const { _postId } = req.params;
       const { title, content } = req.body;
       const { nickname } = res.locals.user;
-      const postDetail = false;
 
-      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
+      const checkPost = await this.postsService.getOnePost(_postId, false);
 
       if (checkPost.nickname !== nickname) {
         throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
@@ -116,9 +115,8 @@ class PostsController {
     try {
       const { _postId } = req.params;
       const { nickname } = res.locals.user;
-      const postDetail = false;
 
-      const checkPost = await this.postsService.getOnePost(_postId, postDetail);
+      const checkPost = await this.postsService.getOnePost(_postId, false);
 
       if (!nickname || checkPost.nickname !== nickname) {
         throw errorWithCode(403, "게시글 삭제 권한이 존재하지 않습니다.");
