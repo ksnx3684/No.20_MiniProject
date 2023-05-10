@@ -65,8 +65,9 @@ class PostsService {
 
   createPost = async (userId, nickname, title, content, tag) => {
     const post = await this.postsRepository.createPost(userId, nickname, title, content);
-    if(!tag)
+    if(!tag) {
       tag = [];
+    }
     const tags = JSON.stringify(tag)
     await this.postsRepository.createTag(post.postId, tags);
   };
@@ -88,6 +89,7 @@ class PostsService {
       nickname: post.nickname,
       title: post.title,
       content: post.content,
+      createdAt: post.createdAt,
       prevPostId: "",
       prevPostTitle: "",
       nextPostId: "",
@@ -113,13 +115,29 @@ class PostsService {
     return postWithDetail;
   };
 
-  updatePost = async (_postId, title, content, tag) => {
+  updatePost = async (_postId, title, content, tag, nickname) => {
+    const post = await this.postsRepository.getOnePost(_postId);
+    if (!post) {
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+    }
+    if (post.nickname !== nickname) {
+      throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
+    }
+
     const tags = JSON.stringify(tag);
     await this.postsRepository.updatePost(_postId, title, content);
     await this.postsRepository.updateTag(_postId, tags);
   };
 
   deletePost = async (nickname, _postId) => {
+    const post = await this.postsRepository.getOnePost(_postId);
+    if (!post) {
+      throw errorWithCode(404, "게시글이 존재하지 않습니다.");
+    }
+    if (post.nickname !== nickname) {
+      throw errorWithCode(403, "게시글 수정 권한이 존재하지 않습니다.");
+    }
+
     await this.postsRepository.deletePost(nickname, _postId);
   };
 }
