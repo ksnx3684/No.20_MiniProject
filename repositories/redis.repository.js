@@ -12,15 +12,6 @@ class RedisClientRepository {
     });
     this.redisConnected = false;
   }
-  // constructor(redis) {
-  //   console.log(redis);
-  //   this.redis = redis;
-  //   this.redisClient = this.redis.createClient({
-  //     url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}/0`,
-  //     legacyMode: true,
-  //   });
-  //   this.redisConnected = false;
-  // }
 
   initialize = async () => {
     this.redisClient.on("connect", () => {
