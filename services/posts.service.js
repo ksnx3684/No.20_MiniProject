@@ -2,10 +2,10 @@ const errorWithCode = require("../utils/error");
 
 const PostsRepository = require("./../repositories/posts.repository");
 const UsersRepository = require("./../repositories/users.repository");
-const { Posts, Users, Comments } = require("./../models/");
+const { Posts, Users, Comments, Tags } = require("./../models/");
 
 class PostsService {
-  postsRepository = new PostsRepository(Posts, Comments);
+  postsRepository = new PostsRepository(Posts, Comments, Tags);
   usersRepository = new UsersRepository(Users);
 
   findAllPosts = async () => {
@@ -62,8 +62,12 @@ class PostsService {
     });
   };
 
-  createPost = async (userId, nickname, title, content) => {
-    await this.postsRepository.createPost(userId, nickname, title, content);
+  createPost = async (userId, nickname, title, content, tag) => {
+    const post = await this.postsRepository.createPost(userId, nickname, title, content);
+    if(!tag)
+      tag = [];
+    const tags = JSON.stringify(tag)
+    await this.postsRepository.createTag(post.postId, tags);
   };
 
   getOnePost = async (_postId, postDetail) => {
@@ -75,49 +79,43 @@ class PostsService {
     const prevPost = await this.postsRepository.getPrevPost(_postId);
     const nextPost = await this.postsRepository.getNextPost(_postId);
 
-    if (!prevPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: "",
-        prevPostTitle: "",
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title,
-        postComment: post.Comments,
-      };
-    else if (!nextPost)
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: "",
-        nextPostTitle: "",
-        postComment: post.Comments,
-      };
-    else
-      return {
-        nickname: post.nickname,
-        title: post.title,
-        content: post.content,
-        prevPostId: prevPost.postId,
-        prevPostTitle: prevPost.title,
-        nextPostId: nextPost.postId,
-        nextPostTitle: nextPost.title,
-        postComment: post.Comments,
-      };
+    const postWithDetail = {
+      nickname: post.nickname,
+      title: post.title,
+      content: post.content,
+      prevPostId: "",
+      prevPostTitle: "",
+      nextPostId: "",
+      nextPostTitle: "",
+      postComment: post.Comments,
+      tags: post.Tags
+    };
+
+    if (prevPost) {
+      postWithDetail.prevPostId = prevPost.postId;
+      postWithDetail.prevPostTitle = prevPost.title;
+    }
+
+    if (nextPost) {
+      postWithDetail.nextPostId = nextPost.postId;
+      postWithDetail.nextPostTitle = nextPost.title;
+    }
+
+    if (!post.Tags[0].tagName) {
+      postWithDetail.tags = [];
+    }
+
+    return postWithDetail;
   };
 
-  updatePost = async (_postId, title, content) => {
-    const post = await this.postsRepository.updatePost(_postId, title, content);
-    return post;
+  updatePost = async (_postId, title, content, tag) => {
+    const tags = JSON.stringify(tag);
+    await this.postsRepository.updatePost(_postId, title, content);
+    await this.postsRepository.updateTag(_postId, tags);
   };
 
   deletePost = async (nickname, _postId) => {
-    const post = await this.postsRepository.deletePost(nickname, _postId);
-    return post;
+    await this.postsRepository.deletePost(nickname, _postId);
   };
 }
 
