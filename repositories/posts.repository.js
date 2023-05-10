@@ -1,9 +1,11 @@
 const { Op } = require("sequelize");
+const { post } = require("superagent");
 
 class PostsRepository {
-  constructor(model, comModel) {
+  constructor(model, comModel, tagModel) {
     this.model = model;
     this.comModel = comModel;
+    this.tagModel = tagModel;
   }
 
   findAllPosts = async () => {
@@ -15,8 +17,13 @@ class PostsRepository {
   };
 
   createPost = async (userId, nickname, title, content) => {
-    await this.model.create({ UserId: userId, nickname, title, content });
+    const post = await this.model.create({ UserId: userId, nickname, title, content });
+    return post;
   };
+
+  createTag = async (postId, tags) => {
+    await this.tagModel.create({ postId: postId, tagName: tags })
+  }
 
   getOnePost = async (_postId) => {
     return await this.model.findOne({
@@ -41,6 +48,12 @@ class PostsRepository {
             "nickname",
             "createdAt",
             "updatedAt",
+          ],
+        },
+        {
+          model: this.tagModel,
+          attributes: [
+            "tagName",
           ],
         },
       ],
@@ -77,12 +90,21 @@ class PostsRepository {
     );
   };
 
+  updateTag = async (_postId, tags) => {
+    const post = await this.tagModel.update(
+      { tagName: tags },
+      { where: { postId: _postId } }
+    );
+    return post;
+  };
+
   deletePost = async (nickname, _postId) => {
     return await this.model.update(
       { status: false },
       { where: { nickname, postId: _postId } }
     );
   };
+
 }
 
 module.exports = PostsRepository;

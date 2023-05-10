@@ -37,12 +37,13 @@ class PostsController {
 
   createPost = async (req, res, next) => {
     try {
-      if (Object.keys(req.body).length !== 2) {
+      if (Object.keys(req.body).length < 2 &&
+          Object.keys(req.body).length > 3) {
         throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
       }
 
       const { userId, nickname } = res.locals.user;
-      const { title, content } = req.body;
+      const { title, content, tag } = req.body;
 
       if (!title || title === "") {
         throw errorWithCode(412, "게시글 제목의 형식이 올바르지 않습니다.");
@@ -53,7 +54,7 @@ class PostsController {
       }
 
       // 게시글 작성
-      await this.postsService.createPost(userId, nickname, title, content);
+      await this.postsService.createPost(userId, nickname, title, content, tag);
 
       return res.status(201).end();
     } catch (e) {
@@ -79,12 +80,13 @@ class PostsController {
   // 게시글 수정
   updatePost = async (req, res, next) => {
     try {
-      if (Object.keys(req.body).length !== 2) {
+      if (Object.keys(req.body).length < 2 &&
+          Object.keys(req.body).length > 3) {
         throw errorWithCode(412, "데이터 형식이 올바르지 않습니다.");
       }
 
       const { _postId } = req.params;
-      const { title, content } = req.body;
+      const { title, content, tag } = req.body;
       const { nickname } = res.locals.user;
       const postDetail = false;
 
@@ -102,7 +104,7 @@ class PostsController {
         throw errorWithCode(412, "게시글 내용의 형식이 올바르지 않습니다.");
       }
 
-      await this.postsService.updatePost(_postId, title, content);
+      await this.postsService.updatePost(_postId, title, content, tag);
 
       return res.status(200).end();
     } catch (e) {

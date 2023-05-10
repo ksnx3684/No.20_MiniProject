@@ -2,10 +2,10 @@ const errorWithCode = require("../utils/error");
 
 const PostsRepository = require("./../repositories/posts.repository");
 const UsersRepository = require("./../repositories/users.repository");
-const { Posts, Users, Comments } = require("./../models/");
+const { Posts, Users, Comments, Tags } = require("./../models/");
 
 class PostsService {
-  postsRepository = new PostsRepository(Posts, Comments);
+  postsRepository = new PostsRepository(Posts, Comments, Tags);
   usersRepository = new UsersRepository(Users);
 
   findAllPosts = async () => {
@@ -63,8 +63,12 @@ class PostsService {
     });
   };
 
-  createPost = async (userId, nickname, title, content) => {
-    await this.postsRepository.createPost(userId, nickname, title, content);
+  createPost = async (userId, nickname, title, content, tag) => {
+    const post = await this.postsRepository.createPost(userId, nickname, title, content);
+    if(!tag)
+      tag = [];
+    const tags = JSON.stringify(tag)
+    await this.postsRepository.createTag(post.postId, tags);
   };
 
   getOnePost = async (_postId, flag) => {
@@ -89,6 +93,7 @@ class PostsService {
       nextPostId: "",
       nextPostTitle: "",
       postComment: post.Comments,
+      tags: post.Tags,
     };
 
     if (prevPost) {
@@ -101,15 +106,21 @@ class PostsService {
       postWithDetail.nextPostTitle = nextPost.title;
     }
 
+    if (!post.Tags[0].tagName) {
+      postWithDetail.tags = [];
+    }
+
     return postWithDetail;
   };
 
-  updatePost = async (_postId, title, content) => {
-    return await this.postsRepository.updatePost(_postId, title, content);
+  updatePost = async (_postId, title, content, tag) => {
+    const tags = JSON.stringify(tag);
+    await this.postsRepository.updatePost(_postId, title, content);
+    await this.postsRepository.updateTag(_postId, tags);
   };
 
   deletePost = async (nickname, _postId) => {
-    return await this.postsRepository.deletePost(nickname, _postId);
+    await this.postsRepository.deletePost(nickname, _postId);
   };
 }
 
