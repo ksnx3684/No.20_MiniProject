@@ -1,10 +1,13 @@
-const JWT = require("jsonwebtoken");
+const redis = require("redis");
 
+const jwt = require("../utils/jwt-util.js");
 const { Users, UserInfo } = require("../models");
 const UsersRepository = require("../repositories/users.repository.js");
+const RedisClientRepository = require("../repositories/redis.repository.js");
 
 class UsersService {
   usersRepository = new UsersRepository(Users, UserInfo);
+  redisClientRepository = new RedisClientRepository(redis);
 
   // 회원찾기 (with nickname)
   getUserWithNickname = async (nickname) => {
@@ -15,16 +18,25 @@ class UsersService {
   // 회원가입
   signup = async (nickname, password) => {
     await this.usersRepository.addUser(nickname, password);
-    return true;
   };
 
   // 로그인
-  login = async (nickname, password) => {
-    // Find Member's userId with nickname
-    const user = await this.usersRepository.getUserWithNickname(nickname);
-    // JWT create
-    const token = JWT.sign({ userId: user.userId }, "customized_secret_key");
-    return token;
+  login = async (user) => {
+    // 토큰 생성
+    const accessToken = jwt.createAccessToken(user.userId, user.nickname);
+    const refreshToken = jwt.createRefreshToken();
+
+    // redis 저장 준비
+    const key = refreshToken;
+    const value = JSON.stringify({
+      userId: user.userId,
+      nickname: user.nickname,
+    });
+
+    // REDIS 저장 실행
+    await this.redisClientRepository.setData(key, value);
+
+    return [accessToken, refreshToken];
   };
 
   // 회원정보 등록
@@ -36,7 +48,6 @@ class UsersService {
       github,
       description
     );
-    return true;
   };
 
   // 회원정보 조회

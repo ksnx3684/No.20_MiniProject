@@ -1,24 +1,24 @@
-const jwt = require("../utils/jwt-util.js");
-
 const UsersService = require("../services/users.service.js");
 const errorWithCode = require("../utils/error.js");
-const RedisClientRepository = require("../utils/redis-util.js");
-
-const redisClientRepository = new RedisClientRepository();
 
 class UsersController {
   usersService = new UsersService();
 
   // 닉네임 중복검사
   checkNickname = async (req, res) => {
-    // 1. 데이터 입력받기
-    const { nickname } = req.body;
-    // 2. 닉네임 중복 검사
-    const user = await this.usersService.getUserWithNickname(nickname);
-    if (user) {
-      return res.status(200).send(true);
-    } else {
-      return res.status(412).send(false);
+    try {
+      // 1. 데이터 입력받기
+      const { nickname } = req.body;
+      // 2. 닉네임 중복 검사
+      const user = await this.usersService.getUserWithNickname(nickname);
+      if (!user) {
+        throw errorWithCode(412, "아이디 중복체크에 실패했습니다.");
+      }
+
+      return res.status(200).end();
+    } catch (e) {
+      e.failedApi = "아이디 중복체크";
+      next(e);
     }
   };
 
@@ -75,14 +75,14 @@ class UsersController {
       }
 
       // 2. Users 회원등록
-      const signupResult = await this.usersService.signup(nickname, password);
+      await this.usersService.signup(nickname, password);
 
       // 3. UserInfo 회원정보 등록
       // 3-1. Users.userId 가져오기
       const { userId } = await this.usersService.getUserWithNickname(nickname);
 
       // 3-2. UserInfo 회원정보 등록
-      const addProfileResult = await this.usersService.addProfile(
+      await this.usersService.addProfile(
         userId,
         userImage,
         email,
@@ -90,9 +90,7 @@ class UsersController {
         description
       );
 
-      if (signupResult && addProfileResult) {
-        return res.status(200).end();
-      }
+      return res.status(200).end();
     } catch (e) {
       e.failedApi = "회원가입";
       next(e);
@@ -108,26 +106,16 @@ class UsersController {
       if (!user || user.password !== password) {
         throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
       }
-      // 토큰 생성
-      const accessToken = jwt.createAccessToken(user.userId, user.nickname);
-      const refreshToken = jwt.createRefreshToken();
 
-      // redis 저장 준비
-      const key = refreshToken;
-      const value = JSON.stringify({
-        userId: user.userId,
-        nickname: user.nickname,
-      });
-
-      // REDIS 저장 실행
-      await redisClientRepository.setData(key, value);
+      const [accessToken, refreshToken] = await this.usersService.login(user);
 
       res.cookie("accessToken", `Bearer ${accessToken}`);
       res.cookie("refreshToken", `Bearer ${refreshToken}`);
 
       return res.status(200).json({ accessToken, refreshToken });
     } catch (e) {
-      return res.status(400).send(false);
+      e.failedApi = "로그인";
+      next(e);
     }
   };
 
