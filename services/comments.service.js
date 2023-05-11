@@ -1,9 +1,9 @@
-const { Comments, Posts } = require("../models");
+const { Comments, Posts, Tags } = require("../models");
 const CommentsRepository = require("../repositories/comments.repository");
 const PostsRepository = require("../repositories/posts.repository");
 
 class CommentsService {
-  postsRepository = new PostsRepository(Posts, Comments);
+  postsRepository = new PostsRepository(Posts, Comments, Tags);
   commentsRepository = new CommentsRepository(Comments);
 
   allComments = async (_postId) => {

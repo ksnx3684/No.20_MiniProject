@@ -8,13 +8,13 @@ const redisClientRepository = new RedisClientRepository(redis);
 // 사용자 인증 미들웨어 - Redis 방식
 module.exports = async (req, res, next) => {
   // 쿠키에 있는 토큰 가져오기
-  const { accessToken, refreshToken } = req.cookies;
+  const { accesstoken, refreshtoken } = req.cookies;
 
   // console.log(req.headers);
 
   // accessToken, refreshToken 존재 유무를 체크 : (falsy) 토큰이 존재하지 않습니다.
-  const isAccessToken = accessToken ? true : false;
-  const isRefreshToken = refreshToken ? true : false;
+  const isAccessToken = accesstoken ? true : false;
+  const isRefreshToken = refreshtoken ? true : false;
 
   // console.log(
   //   `isAccessToken: ${isAccessToken}, isRefreshToken: ${isRefreshToken}`
@@ -27,8 +27,8 @@ module.exports = async (req, res, next) => {
   }
 
   // accessToken, refreshToken 토큰 타입, 토큰 값 분할 할당
-  const [accessTokenType, accessTokenValue] = accessToken.split(" ");
-  const [refreshTokenType, refreshTokenValue] = refreshToken.split(" ");
+  const [accessTokenType, accessTokenValue] = accesstoken.split(" ");
+  const [refreshTokenType, refreshTokenValue] = refreshtoken.split(" ");
 
   // console.log(
   //   `accessTokenType: ${accessTokenType}, refreshTokenType: ${refreshTokenType}`
@@ -107,7 +107,7 @@ module.exports = async (req, res, next) => {
       res.cookie("accessToken", `Bearer ${newAccessToken}`);
       res
         .status(200)
-        .json({ accessToken: newAccessToken, refreshToken: refreshTokenValue });
+        .json({ accesstoken: newAccessToken, refreshtoken: refreshTokenValue });
     }
     res.locals.user = jwt.getAccessTokenPayload(accessTokenValue);
     next();

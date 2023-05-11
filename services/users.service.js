@@ -23,11 +23,11 @@ class UsersService {
   // 로그인
   login = async (user) => {
     // 토큰 생성
-    const accessToken = jwt.createAccessToken(user.userId, user.nickname);
-    const refreshToken = jwt.createRefreshToken();
+    const accesstoken = jwt.createAccessToken(user.userId, user.nickname);
+    const refreshtoken = jwt.createRefreshToken();
 
     // redis 저장 준비
-    const key = refreshToken;
+    const key = refreshtoken;
     const value = JSON.stringify({
       userId: user.userId,
       nickname: user.nickname,
