@@ -8,17 +8,15 @@ const REFRESH_TOKEN_EXPIRE_TIME = "14d"; // refreshToken 소멸시간 설정
 module.exports = {
   // Access Token 발급
   createAccessToken: (userId, nickname) => {
-    const accessToken = jwt.sign({ userId, nickname }, SECRET_KEY, {
+    return jwt.sign({ userId, nickname }, SECRET_KEY, {
       expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
     });
-    return accessToken;
   },
   // Refresh Token 발급
   createRefreshToken: () => {
-    const refreshToken = jwt.sign({}, SECRET_KEY, {
+    return jwt.sign({}, SECRET_KEY, {
       expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
     });
-    return refreshToken;
   },
   // Token Type 검증
   validateTokenType: (tokenType) => {

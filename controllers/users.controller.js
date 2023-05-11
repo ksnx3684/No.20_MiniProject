@@ -107,12 +107,12 @@ class UsersController {
         throw errorWithCode(401, "닉네임 또는 패스워드를 확인해주세요.");
       }
 
-      const [accessToken, refreshToken] = await this.usersService.login(user);
+      const [accesstoken, refreshtoken] = await this.usersService.login(user);
 
-      res.cookie("accessToken", `Bearer ${accessToken}`);
-      res.cookie("refreshToken", `Bearer ${refreshToken}`);
+      res.cookie("accesstoken", `Bearer ${accesstoken}`);
+      res.cookie("refreshtoken", `Bearer ${refreshtoken}`);
 
-      return res.status(200).json({ accessToken, refreshToken });
+      return res.status(200).json({ accesstoken, refreshtoken });
     } catch (e) {
       e.failedApi = "로그인";
       next(e);
@@ -150,20 +150,23 @@ class UsersController {
       const { userId } = res.locals.user;
       const { userImage, email, github, description } = req.body;
       // 1-1. userImage 유효성 검사
-      if (typeof userImage === "undefined") {
-        throw errorWithCode(412, "프로필 이미지 형식이 일치하지 않습니다.");
-      }
-      // 1-2. email 유효성 검사
-      if (typeof email === "undefined") {
-        throw errorWithCode(412, "이메일 형식이 일치하지 않습니다.");
-      }
-      // 1-3. github 유효성 검사
-      if (typeof github === "undefined") {
-        throw errorWithCode(412, "깃허브 형식이 일치하지 않습니다.");
-      }
-      // 1-4. description 유효성 검사
-      if (typeof description === "undefined") {
-        throw errorWithCode(412, "소개글 형식이 일치하지 않습니다.");
+      // if (typeof userImage === "undefined") {
+      //   throw errorWithCode(412, "프로필 이미지 형식이 일치하지 않습니다.");
+      // }
+      // // 1-2. email 유효성 검사
+      // if (typeof email === "undefined") {
+      //   throw errorWithCode(412, "이메일 형식이 일치하지 않습니다.");
+      // }
+      // // 1-3. github 유효성 검사
+      // if (typeof github === "undefined") {
+      //   throw errorWithCode(412, "깃허브 형식이 일치하지 않습니다.");
+      // }
+      // // 1-4. description 유효성 검사
+      // if (typeof description === "undefined") {
+      //   throw errorWithCode(412, "소개글 형식이 일치하지 않습니다.");
+      // }
+      if (!userImage && !email && !github && !description) {
+        throw errorWithCode(412, "데이터 형식이 일치하지 않습니다.");
       }
       await this.usersService.editProfile(
         userId,
