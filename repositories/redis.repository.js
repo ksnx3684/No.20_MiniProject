@@ -26,10 +26,15 @@ class RedisClientRepository {
     }
   };
 
-  setData = async (key, value) => {
+  setData = async (key, value, EXPIRE_TIME) => {
     await this.initialize(); // 한번만 할 수있도록 수정 필요
-    await this.redisClient.v4.set(key, value);
-    // this.redisClient.quit(); // Redis 연결 종료  // await 추가 테스트 필요
+    // ver.1
+    // await this.redisClient.v4.set(key, value); // 키-값 저장가능, 자동소멸 불가능
+    // ver.2
+    // await this.redisClient.v4.set(key, value, "EX", 120); // 키-값 저장가능, expire time 안먹힘
+    // ver.3
+    await this.redisClient.v4.set(key, value, "keepttl"); // 키-값 저장 (옵션, 자동소멸 기능 추가)
+    await this.redisClient.v4.expire(key, EXPIRE_TIME); // 저장된 키값에 소멸시간 정의
   };
 
   getData = async (key) => {
