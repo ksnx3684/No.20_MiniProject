@@ -34,9 +34,10 @@ class UsersService {
     });
 
     // REDIS 저장 실행
-    await this.redisClientRepository.setData(key, value);
-
-    return [accesstoken, refreshtoken];
+    // await this.redisClientRepository.setData(key, value);
+    const EXPIRE_TIME = 1209600; // 14일로 셋팅
+    await this.redisClientRepository.setData(key, value, EXPIRE_TIME);
+    return [accessToken, refreshToken];
   };
 
   // 회원정보 등록
