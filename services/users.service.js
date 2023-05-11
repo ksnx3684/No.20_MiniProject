@@ -37,7 +37,7 @@ class UsersService {
     // await this.redisClientRepository.setData(key, value);
     const EXPIRE_TIME = 1209600; // 14일로 셋팅
     await this.redisClientRepository.setData(key, value, EXPIRE_TIME);
-    return [accessToken, refreshToken];
+    return [accesstoken, refreshtoken];
   };
 
   // 회원정보 등록
